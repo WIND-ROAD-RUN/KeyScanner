@@ -1,0 +1,14 @@
+#include <string>
+
+namespace cdm {
+	class QiXinShiJinDanXiangJiConfig
+	{
+	public:
+		totalProductionVolume : int :default = 0;
+		totalDefectiveVolume : int :default = 0;
+		isDebug : bool :default = false;
+		isDefect : bool :default = false;
+		isshibiekuang : bool :default = true;
+		iswenzi : bool :default = true;
+	};
+}

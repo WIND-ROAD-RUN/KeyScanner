@@ -1,0 +1,465 @@
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include "ImageProcessorModule.hpp"
+
+#include <qfuture.h>
+#include <qtconcurrentrun.h>
+#include <atomic>
+#include "GlobalStruct.hpp"
+#include "Utilty.hpp"
+#include "halconcpp/HalconCpp.h"
+#include "Halcon.h"
+#include <QPainter>
+#include <QPen>
+#include <cmath>
+#include <algorithm>
+#include "KeyScanner.h"
+
+namespace {
+	// 在给定最小间隔内只放行一次调用：成功返回 true，其他并发/过快的调用返回 false
+	inline bool AllowOncePer(std::atomic<long long>& lastNs, std::chrono::nanoseconds minInterval)
+	{
+		using clock = std::chrono::steady_clock;
+		const auto nowNs = std::chrono::duration_cast<std::chrono::nanoseconds>(
+			clock::now().time_since_epoch()).count();
+
+		auto prev = lastNs.load(std::memory_order_relaxed);
+		if (nowNs - prev < minInterval.count())
+			return false; // 距上次放行未到间隔，拒绝
+
+		// 只有一个线程能成功更新 lastNs，其他并发线程会失败并返回 false
+		return lastNs.compare_exchange_strong(prev, nowNs, std::memory_order_relaxed);
+	}
+} // namespace
+
+
+ImageProcessor::ImageProcessor(QQueue<MatInfo>& queue, QMutex& mutex, QWaitCondition& condition, int workIndex, QObject* parent)
+	: QThread(parent), _queue(queue), _mutex(mutex), _condition(condition), _workIndex(workIndex)
+{
+
+}
+
+void ImageProcessor::run()
+{
+	while (!QThread::currentThread()->isInterruptionRequested()) {
+		MatInfo frame;
+		{
+			QMutexLocker locker(&_mutex);
+			if (_queue.isEmpty()) {
+				_condition.wait(&_mutex);
+				if (QThread::currentThread()->isInterruptionRequested()) {
+					break;
+				}
+			}
+			if (!_queue.isEmpty()) {
+				frame = _queue.dequeue();
+			}
+			else {
+				continue; // 如果队列仍为空，跳过本次循环
+			}
+		}
+
+		// 检查 frame 是否有效
+		if (frame.image.empty()) {
+			continue; // 跳过空帧
+		}
+
+		auto& globalData = GlobalData::getInstance();
+
+		// 获取当前时间点
+		auto now = std::chrono::system_clock::now();
+		// 转换为time_t格式
+		std::time_t now_time = std::chrono::system_clock::to_time_t(now);
+		// 转换为本地时间
+		std::tm* local_time = std::localtime(&now_time);
+
+		auto currentRunningState = globalData.runningState.load();
+		switch (currentRunningState)
+		{
+		case RunningState::Debug:
+			run_debug(frame);
+			break;
+		case RunningState::OpenRemoveFunc:
+			run_OpenRemoveFunc(frame);
+			break;
+		default:
+			break;
+		}
+	}
+}
+
+void ImageProcessor::run_debug(MatInfo& frame)
+{
+	auto& imgPro = *_imgProcess;
+	imgPro(frame.image);
+	// 更新屏蔽线
+	updateShieldWires();
+	auto maskImg = imgPro.getMaskImg(frame.image);
+	auto defectResult = imgPro.getDefectResultInfo();
+
+	drawBoundariesLines(maskImg);
+
+	emit imageReady(QPixmap::fromImage(maskImg));
+}
+
+void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
+{
+	auto& imgPro = *_imgProcess;
+	auto& qiXinShiJinConfig = GlobalData::getInstance().qiXinShiJinDanXiangJiConfig;
+	double R1 = 0;
+	double C1 = 0;
+	double length = 0;
+	double width = 0;
+	double angle = 0;
+
+	QFuture<bool> positiveIsBadFuture;
+
+	positiveIsBadFuture = QtConcurrent::run(
+		[this, &positiveIsBadFuture, &frame, &R1, &C1, &length, &width, &angle]() 
+		{
+
+		bool isBad = false;
+
+		return isBad;
+		});
+
+	imgPro(frame.image);
+	bool positiveIsBad{ false };
+
+	positiveIsBadFuture.waitForFinished();
+	positiveIsBad = positiveIsBadFuture.result();
+
+	// 更新屏蔽线
+	updateShieldWires();
+	auto maskImg = imgPro.getMaskImg(frame.image);
+	auto defectResult = imgPro.getDefectResultInfo();
+
+	auto& context = _imgProcess->context();
+
+	if (defectResult.isBad)
+	{
+		_isbad = true;
+	}
+
+	run_OpenRemoveFunc_emitErrorInfo(_isbad);
+
+	drawBoundariesLines(maskImg);
+
+	emit imageNGReady(QPixmap::fromImage(maskImg), frame.index, defectResult.isBad);
+	emit
+}
+
+void ImageProcessor::run_OpenRemoveFunc_emitErrorInfo(bool isbad) const
+{
+	auto& globalStruct = GlobalData::getInstance();
+	auto& globalThread = GlobalThread::getInstance();
+
+	if (isbad)
+	{
+		++globalStruct.statisticalInfo.wasteCount;
+	}
+
+	if (imageProcessingModuleIndex == 1 || imageProcessingModuleIndex == 2)
+	{
+		++globalStruct.statisticalInfo.produceCount;
+	}
+
+	if (isbad)
+	{
+		globalThread.priorityQueue->push(true);
+	}
+}
+
+void ImageProcessor::buildSEGModelEngine(const QString& enginePath)
+{
+	rw::ModelEngineConfig modelEngineConfig;
+	modelEngineConfig.conf_threshold = 0.1f;
+	modelEngineConfig.nms_threshold = 0.1f;
+	modelEngineConfig.imagePretreatmentPolicy = rw::ImagePretreatmentPolicy::LetterBox;
+	modelEngineConfig.letterBoxColor = cv::Scalar(114, 114, 114);
+	modelEngineConfig.modelPath = enginePath.toStdString();
+	auto engine = rw::ModelEngineFactory::createModelEngine(modelEngineConfig, rw::ModelType::Yolov11_Seg_Mask, rw::ModelEngineDeployType::TensorRT);
+
+	_imgProcess = std::make_unique<rw::imgPro::ImageProcess>(engine);
+
+	iniIndexGetContext();
+	iniEliminationInfoFunc();
+	iniEliminationInfoGetContext();
+	iniDefectResultInfoFunc();
+	iniDefectResultGetContext();
+	iniDefectDrawConfig();
+	iniRunTextConfig();
+}
+
+void ImageProcessor::iniIndexGetContext()
+{
+	auto& context = _imgProcess->context();
+
+	context.indexGetContext.removeIndicesIfByInfo = [this](const rw::DetectionRectangleInfo& info, const rw::imgPro::ImageProcessContext& imageProcessContext) {
+		bool isInShieldWires = false;
+		if (-1 == topShieldWire || -1 == bottomShieldWire)
+		{
+			return false;
+		}
+
+		if (info.center_y > topShieldWire && info.center_y < bottomShieldWire)
+		{
+			isInShieldWires = true;
+		}
+		return !isInShieldWires;
+		};
+}
+
+void ImageProcessor::iniEliminationInfoFunc()
+{
+	updateParamMapsFromGlobalStruct();
+}
+
+void ImageProcessor::iniEliminationInfoGetContext()
+{
+	auto& context = _imgProcess->context();
+
+	context.eliminationInfoGetContext.getEliminationItemFuncSpecialOperator = [this](rw::imgPro::EliminationItem& item,
+		const rw::DetectionRectangleInfo& info,
+		const rw::imgPro::EliminationInfoGetConfig& cfg) {
+
+		};
+}
+
+void ImageProcessor::iniDefectResultInfoFunc()
+{
+	auto& context = _imgProcess->context();
+
+	rw::imgPro::DefectResultInfoFunc::Config defectConfig;
+	rw::imgPro::DefectResultInfoFunc::ClassIdWithConfigMap defectConfigs;
+	defectConfig.isEnable = BodyMap["enable"];
+	defectConfigs[ClassId::Body] = defectConfig;
+	defectConfig.isEnable = ChiMap["enable"];
+	defectConfigs[ClassId::Chi] = defectConfig;
+	context.defectCfg = defectConfigs;
+}
+
+void ImageProcessor::iniDefectResultGetContext()
+{
+	auto& context = _imgProcess->context();
+	context.defectResultGetContext.getDefectResultExtraOperate = [this](const rw::imgPro::EliminationItem& item, const rw::DetectionRectangleInfo& detectionRectangleInfo) {
+
+		};
+}
+
+void ImageProcessor::iniDefectDrawConfig()
+{
+	auto& context = _imgProcess->context();
+
+	rw::imgPro::DefectDrawFunc::ConfigDefectDraw drawConfig;
+	updateDrawRec();
+	drawConfig.classIdWithConfigMap[0].isDrawMask = true;
+	drawConfig.classIdWithConfigMap[1].isDrawMask = true;
+	drawConfig.classIdWithConfigMap[0].hasFrame = false;
+	drawConfig.classIdWithConfigMap[1].hasFrame = false;
+
+	drawConfig.classIdWithConfigMap[0].defectColorGood = rw::rqw::RQWColor::Green;
+	drawConfig.classIdWithConfigMap[0].defectColorBad = rw::rqw::RQWColor::Green;
+	drawConfig.classIdWithConfigMap[1].defectColorGood = rw::rqw::RQWColor::Red;
+	drawConfig.classIdWithConfigMap[1].defectColorBad = rw::rqw::RQWColor::Red;
+
+	drawConfig.classIdWithConfigMap[0].isDisAreaText = false;
+	drawConfig.classIdWithConfigMap[0].isDisScoreText = false;
+	drawConfig.classIdWithConfigMap[0].isDisName = false;
+	drawConfig.classIdWithConfigMap[1].isDisAreaText = false;
+	drawConfig.classIdWithConfigMap[1].isDisScoreText = false;
+	drawConfig.classIdWithConfigMap[1].isDisName = false;
+	context.defectDrawCfg = drawConfig;
+}
+
+void ImageProcessor::iniRunTextConfig()
+{
+	updateDrawText();
+}
+
+void ImageProcessor::drawBoundariesLines(QImage& image)
+{
+	auto& index = imageProcessingModuleIndex;
+	auto& setConfig = GlobalData::getInstance().setConfig;
+	rw::imgPro::ConfigDrawLine configDrawLine;
+	configDrawLine.color = rw::imgPro::Color::Red;
+	configDrawLine.thickness = 3;
+	if (index == 1)
+	{
+		configDrawLine.position = setConfig.shangxianwei;
+		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
+		configDrawLine.position = setConfig.xiaxianwei;
+		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
+	}
+}
+
+void ImageProcessor::updateShieldWires()
+{
+	auto& globalStructSetConfig = GlobalData::getInstance().setConfig;
+	auto& index = imageProcessingModuleIndex;
+	if (1 == index)
+	{
+		topShieldWire = globalStructSetConfig.shangxianwei;
+		bottomShieldWire = globalStructSetConfig.xiaxianwei;
+	}
+
+}
+
+void ImageProcessor::updateDrawRec()
+{
+	auto& globalStruct = GlobalData::getInstance();
+	auto& context = _imgProcess->context();
+	context.defectDrawCfg.isDrawMask = true;
+	if (globalStruct.qiXinShiJinDanXiangJiConfig.isshibiekuang)
+	{
+		context.defectDrawCfg.isDrawDefects = true;
+		context.defectDrawCfg.isDrawDisableDefects = true;
+		context.defectDrawCfg.isDisAreaText = true;
+		context.defectDrawCfg.isDisScoreText = true;
+	}
+	else
+	{
+		context.defectDrawCfg.isDrawDefects = false;
+		context.defectDrawCfg.isDrawDisableDefects = false;
+		context.defectDrawCfg.isDisAreaText = false;
+		context.defectDrawCfg.isDisScoreText = false;
+	}
+}
+
+void ImageProcessor::updateDrawText()
+{
+	auto& globalStruct = GlobalData::getInstance();
+	auto& context = _imgProcess->context();
+	if (globalStruct.qiXinShiJinDanXiangJiConfig.iswenzi)
+	{
+		context.runTextCfg.isDrawExtraText = true;
+	}
+	else
+	{
+		context.runTextCfg.isDrawExtraText = false;
+	}
+}
+
+void ImageProcessor::updateParamMapsFromGlobalStruct()
+{
+	auto& context = _imgProcess->context();
+	auto& globalStruct = GlobalData::getInstance();
+
+	BodyMap["classId"] = 0;
+	BodyMap["maxArea"] = 0;
+	BodyMap["maxScore"] = globalStruct.setConfig.score;
+	BodyMap["enable"] = true;
+	if (1 == imageProcessingModuleIndex)
+	{
+		BodyMap["pixToWorld"] = globalStruct.setConfig.xiangsudangliang;
+	}
+
+	ChiMap["classId"] = 1;
+	ChiMap["maxArea"] = 0;
+	ChiMap["maxScore"] = globalStruct.setConfig.score;
+	ChiMap["enable"] = true;
+	if (1 == imageProcessingModuleIndex)
+	{
+		ChiMap["pixToWorld"] = globalStruct.setConfig.xiangsudangliang;
+	}
+
+	rw::imgPro::EliminationInfoFunc::ClassIdWithConfigMap eliminationInfoGetConfigs;
+	rw::imgPro::EliminationInfoGetConfig BodyEliminationInfoGetConfig;
+	rw::imgPro::EliminationInfoGetConfig ChiEliminationInfoGetConfig;
+
+	BodyEliminationInfoGetConfig.areaFactor = BodyMap["pixToWorld"];//这里设置为像素当量
+	BodyEliminationInfoGetConfig.scoreFactor = 100;//这里设置为百分比当量
+	BodyEliminationInfoGetConfig.isUsingArea = false;//这里设置为使用面积
+	BodyEliminationInfoGetConfig.isUsingScore = true;//这里设置为使用分数
+	BodyEliminationInfoGetConfig.scoreRange = { 0,BodyMap["maxScore"] };
+	BodyEliminationInfoGetConfig.areaRange = { 0,BodyMap["maxArea"] };
+	BodyEliminationInfoGetConfig.scoreIsUsingComplementarySet = false;
+	eliminationInfoGetConfigs[ClassId::Body] = BodyEliminationInfoGetConfig;
+
+	ChiEliminationInfoGetConfig.areaFactor = ChiMap["pixToWorld"];//这里设置为像素当量
+	ChiEliminationInfoGetConfig.scoreFactor = 100;//这里设置为百分比当量
+	ChiEliminationInfoGetConfig.isUsingArea = false;//这里设置为使用面积
+	ChiEliminationInfoGetConfig.isUsingScore = true;//这里设置为使用分数
+	ChiEliminationInfoGetConfig.scoreRange = { 0,ChiMap["maxScore"] };
+	ChiEliminationInfoGetConfig.areaRange = { 0,ChiMap["maxArea"] };
+	ChiEliminationInfoGetConfig.scoreIsUsingComplementarySet = false;
+	eliminationInfoGetConfigs[ClassId::Chi] = ChiEliminationInfoGetConfig;
+
+	context.eliminationCfg = eliminationInfoGetConfigs;
+
+	iniDefectResultInfoFunc();
+}
+
+void ImageProcessingModule::BuildModule()
+{
+	for (int i = 0; i < _numConsumers; ++i) {
+		static size_t workIndexCount = 0;
+		ImageProcessor* processor = new ImageProcessor(_queue, _mutex, _condition, workIndexCount, this);
+		workIndexCount++;
+		processor->buildSEGModelEngine(modelEnginePath);
+		processor->imageProcessingModuleIndex = index;
+		connect(processor, &ImageProcessor::imageReady, this, &ImageProcessingModule::imageReady, Qt::QueuedConnection);
+		connect(processor, &ImageProcessor::imageNGReady, this, &ImageProcessingModule::imageNGReady, Qt::QueuedConnection);
+
+		connect(this, &ImageProcessingModule::shibiekuangChanged, processor, &ImageProcessor::updateDrawRec, Qt::QueuedConnection);
+		connect(this, &ImageProcessingModule::wenziChanged, processor, &ImageProcessor::updateDrawText, Qt::QueuedConnection);
+		connect(this, &ImageProcessingModule::paramMapsChanged, processor, &ImageProcessor::updateParamMapsFromGlobalStruct, Qt::QueuedConnection);
+		_processors.push_back(processor);
+		processor->start();
+	}
+}
+
+ImageProcessingModule::ImageProcessingModule(int numConsumers, QObject* parent)
+	: QObject(parent), _numConsumers(numConsumers)
+{
+
+}
+
+ImageProcessingModule::~ImageProcessingModule()
+{
+	// 通知所有线程退出
+	for (auto processor : _processors) {
+		processor->requestInterruption();
+	}
+
+	// 唤醒所有等待的线程
+	{
+		QMutexLocker locker(&_mutex);
+		_condition.wakeAll();
+	}
+
+	// 等待所有线程退出
+	for (auto processor : _processors) {
+		if (processor->isRunning()) {
+			processor->wait(1000); // 使用超时机制，等待1秒
+		}
+		delete processor;
+	}
+}
+
+void ImageProcessingModule::onFrameCaptured(rw::rqw::MatInfo matInfo, size_t index)
+{
+	// 手动读取本地图片
+	std::string imagePath = R"(C:\Users\zfkj4090\Desktop\yaoshi.bmp)"; // 替换为你的图片路径
+	cv::Mat frame1 = cv::imread(imagePath, cv::IMREAD_COLOR);
+	matInfo.mat = frame1.clone();
+	if (matInfo.mat.channels() == 4) {
+		cv::cvtColor(matInfo.mat, matInfo.mat, cv::COLOR_BGRA2BGR);
+	}
+	if (matInfo.mat.type() != CV_8UC3) {
+		matInfo.mat.convertTo(matInfo.mat, CV_8UC3);
+	}
+
+	if (matInfo.mat.empty()) {
+		return; // 跳过空帧
+	}
+
+	QMutexLocker locker(&_mutex);
+	MatInfo mat;
+	mat.image = matInfo.mat;
+	mat.index = index;
+
+	_queue.enqueue(mat);
+	_condition.wakeOne();
+}
