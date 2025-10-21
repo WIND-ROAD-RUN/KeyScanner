@@ -63,7 +63,6 @@ KeyLinePixelCountResult countKeyLinePixels(
 	std::vector<std::pair<int, int>> bladeSegments;
 
 	std::pair<int, int> leftEmptyRange{ 0,0 };
-
 	std::pair<int, int> RightEmptyRange{ 0,0 };
 	std::pair<int, int> keyRange{ 0,0 };
 	std::pair<int, int> leftBladeRange{ 0,0 };
@@ -72,6 +71,12 @@ KeyLinePixelCountResult countKeyLinePixels(
 
 
 	int y = lineY - blade.roi.y;
+
+	if (y < 0)
+	{
+		return result;
+	}
+
 	if (y <= blade.roi.height)
 	{
 		for (int x = 0; x < bladeMask.cols; ++x) {
@@ -237,60 +242,7 @@ void ImageProcessor::run_debug(MatInfo& frame)
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
 
-	drawLines(maskImg);
-
-	int loc = 500;
-
-	rw::imgPro::ConfigDrawLine lineCfg;
-	lineCfg.position = loc;
-	rw::imgPro::ImagePainter::drawHorizontalLine(maskImg, lineCfg);
-
-	auto bodyIndexes = imgPro.getProcessResultIndexMap().at(ClassId::Body);
-	auto chiIndedxes= imgPro.getProcessResultIndexMap().at(ClassId::Chi);
-
-	int bodyIndex = 0;
-	for (const auto & item: bodyIndexes)
-	{
-		bodyIndex = item;
-	}
-	int chiIndex = 0;
-	for (const auto& item : chiIndedxes)
-	{
-		chiIndex = item;
-	}
-
-	auto proResult = imgPro.getProcessResult();
-
-	auto result=countKeyLinePixels(proResult[bodyIndex],proResult[chiIndex], loc,frame.image);
-
-	rw::imgPro::ConfigDrawSegment cfg;
-	cfg.startPoint = { result.leftBladeRange.first, loc };
-	cfg.endPoint = { result.leftBladeRange.second, loc };
-	cfg.thickness = 5;
-	cfg.color = rw::imgPro::Color::Blue;
-	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-
-	cfg.startPoint = { result.rightBladeRange.first, loc };
-	cfg.endPoint = { result.rightBladeRange.second, loc };
-	cfg.color = rw::imgPro::Color::Blue;
-	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-
-	cfg.startPoint = { result.leftEmptyRange.first, loc };
-	cfg.endPoint = { result.leftEmptyRange.second, loc };
-	cfg.color = rw::imgPro::Color::Orange;
-	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-
-	cfg.startPoint = { result.RightEmptyRange.first, loc };
-	cfg.endPoint = { result.RightEmptyRange.second, loc };
-	cfg.color = rw::imgPro::Color::Orange;
-	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-
-	cfg.startPoint = { result.middleTeethRange.first, loc };
-	cfg.endPoint = { result.middleTeethRange.second, loc };
-	cfg.color = rw::imgPro::Color::Gray;
-	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-
-
+	drawKeyRange(maskImg, frame.image);
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 }
@@ -484,6 +436,90 @@ void ImageProcessor::drawLines(QImage& image)
 		}
 		configDrawLine.position = y;
 		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
+	}
+}
+
+void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
+{
+	auto& imgPro = *_imgProcess;
+	auto& setConfig = GlobalData::getInstance().setConfig;
+	double pixToWorld = setConfig.xiangsudangliang;
+	if (pixToWorld <= 0.0) {
+		return;
+	}
+
+	double yStart = setConfig.biaozhunxianshangjuli / pixToWorld;
+	int num = setConfig.biaozhunxianshuliang;
+	double yDifference = setConfig.biaozhunxianjiange / pixToWorld;
+
+	if (num <= 0) {
+		return;
+	}
+
+	auto bodyIndexes = imgPro.getProcessResultIndexMap().at(ClassId::Body);
+	auto chiIndedxes = imgPro.getProcessResultIndexMap().at(ClassId::Chi);
+
+	int bodyIndex = 0;
+	for (const auto& item : bodyIndexes)
+	{
+		bodyIndex = item;
+	}
+	int chiIndex = 0;
+	for (const auto& item : chiIndedxes)
+	{
+		chiIndex = item;
+	}
+
+	auto proResult = imgPro.getProcessResult();
+
+	for (int i = 0; i < num; ++i) {
+		double y = yStart + i * yDifference;
+		if (y < 0) {
+			continue;
+		}
+		if (y >= rowImage.rows) {
+			break;
+		}
+		auto loc = y;
+		auto result = countKeyLinePixels(proResult[bodyIndex], proResult[chiIndex], loc, rowImage);
+
+		if (0 != result.totalCount)
+		{
+			rw::imgPro::ConfigDrawSegment cfg;
+			cfg.startPoint = { result.leftBladeRange.first, loc };
+			cfg.endPoint = { result.leftBladeRange.second, loc };
+			cfg.thickness = 5;
+			cfg.color = rw::imgPro::Color::Blue;
+			rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+			cfg.startPoint = { result.rightBladeRange.first, loc };
+			cfg.endPoint = { result.rightBladeRange.second, loc };
+			cfg.color = rw::imgPro::Color::Blue;
+			rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+			cfg.startPoint = { result.leftEmptyRange.first, loc };
+			cfg.endPoint = { result.leftEmptyRange.second, loc };
+			cfg.color = rw::imgPro::Color::Orange;
+			rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+			cfg.startPoint = { result.RightEmptyRange.first, loc };
+			cfg.endPoint = { result.RightEmptyRange.second, loc };
+			cfg.color = rw::imgPro::Color::Orange;
+			rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+			cfg.startPoint = { result.middleTeethRange.first, loc };
+			cfg.endPoint = { result.middleTeethRange.second, loc };
+			cfg.color = rw::imgPro::Color::Gray;
+			rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+		}
+		else
+		{
+			rw::imgPro::ConfigDrawLine configDrawLine;
+			configDrawLine.color = rw::imgPro::Color::Red;
+			configDrawLine.thickness = 3;
+			configDrawLine.position = y;
+			rw::imgPro::ImagePainter::drawHorizontalLine(maskImg, configDrawLine);
+		}
 	}
 }
 

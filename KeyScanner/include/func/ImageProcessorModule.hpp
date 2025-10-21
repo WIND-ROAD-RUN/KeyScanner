@@ -84,7 +84,7 @@ public:
 public:
 	// 在指定位置画横线
 	void drawLines(QImage& image);
-
+	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage);
 public slots:
 	void updateDrawRec();
 	void updateDrawText();
