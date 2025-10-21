@@ -12,6 +12,7 @@
 #include "Utilty.hpp"
 
 
+#ifdef BUILD_WITHOUT_HARDWARE
 void KeyScanner::cbox_testIfPushImg_clicked(bool states)
 {
 	GlobalThread::getInstance().testImgPush = states;
@@ -25,6 +26,8 @@ void KeyScanner::sBox_pushImgTime_valueChanged(int value)
 		globalThread.testImgPushThread->setPushImgTime(value);
 	}
 }
+#endif
+
 
 KeyScanner::KeyScanner(QWidget* parent)
 	: QMainWindow(parent)

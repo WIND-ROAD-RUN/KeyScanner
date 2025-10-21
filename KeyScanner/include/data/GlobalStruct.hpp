@@ -92,9 +92,10 @@ public:
 public:
 	std::unique_ptr<TestImgPushThread> testImgPushThread{ nullptr };
 	std::atomic_bool testImgPush{ false };
-#endif
+
 	void build_TestImgPushThread();
 	void destroy_TestImgPushThread();
+#endif
 };
 
 class GlobalFuncObject

@@ -277,14 +277,16 @@ rw::rqw::CameraMetaData GlobalThread::cameraMetaDataCheck(const QString& cameraI
 	return error;
 }
 
+#ifdef BUILD_WITHOUT_HARDWARE
 void GlobalThread::build_TestImgPushThread()
 {
-	//testImgPushThread = std::make_unique<TestImgPushThread>();
-	//testImgPushThread->startThread();
+	testImgPushThread = std::make_unique<TestImgPushThread>();
+	testImgPushThread->startThread();
 }
 
 void GlobalThread::destroy_TestImgPushThread()
 {
-	//testImgPushThread->stopThread();
-	//testImgPushThread.reset();
+	testImgPushThread->stopThread();
+	testImgPushThread.reset();
 }
+#endif
