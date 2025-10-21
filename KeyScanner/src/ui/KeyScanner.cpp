@@ -32,6 +32,7 @@ void KeyScanner::build_ui()
 	build_KeyScannerData();
 	build_DlgProductSet();
 	build_DlgCloseForm();
+	build_DlgLimitForm();
 }
 
 void KeyScanner::build_connect()
@@ -40,8 +41,8 @@ void KeyScanner::build_connect()
 		this, &KeyScanner::pbtn_exit_clicked);
 	QObject::connect(ui->pbtn_set, &QPushButton::clicked,
 		this, &KeyScanner::pbtn_set_clicked);
-	QObject::connect(ui->pbtn_start, &QPushButton::clicked,
-		this, &KeyScanner::pbtn_start_clicked);
+	QObject::connect(ui->pbtn_limit, &QPushButton::clicked,
+		this, &KeyScanner::pbtn_limit_clicked);
 	QObject::connect(ui->rbtn_debug, &QRadioButton::clicked,
 		this, &KeyScanner::rbtn_debug_checked);
 	QObject::connect(ui->rbtn_removeFunc, &QRadioButton::clicked,
@@ -97,6 +98,11 @@ void KeyScanner::build_DlgCloseForm()
 	_dlgCloseForm = new DlgCloseForm(this);
 }
 
+void KeyScanner::build_DlgLimitForm()
+{
+	_dlgLimit = new DlgLimit(this);
+}
+
 void KeyScanner::read_config()
 {
 	auto& globalFuncObject = GlobalFuncObject::getInstance();
@@ -104,6 +110,7 @@ void KeyScanner::read_config()
 
 	read_config_KeyScannerConfig();
 	read_config_DlgProductSetConfig();
+	read_config_DlgLimitConfig();
 }
 
 void KeyScanner::read_config_KeyScannerConfig()
@@ -136,12 +143,27 @@ void KeyScanner::read_config_DlgProductSetConfig()
 	globalData.setConfig = *loadResult;
 }
 
+void KeyScanner::read_config_DlgLimitConfig()
+{
+	auto& globalFunc = GlobalFuncObject::getInstance();
+	auto& globalData = GlobalData::getInstance();
+	globalFunc.storeContext->ensureFileExistsSafe(globalPath.limitConfigPath.toStdString(), cdm::LimitConfig());
+	auto loadResult = globalFunc.storeContext->loadSafe(globalPath.limitConfigPath.toStdString());
+	if (!loadResult)
+	{
+		globalFunc.storeContext->saveSafe(cdm::LimitConfig(), globalPath.limitConfigPath.toStdString());
+		return;
+	}
+	globalData.limitConfig = *loadResult;
+}
+
 void KeyScanner::save_config()
 {
 	auto& globalFuncObject = GlobalFuncObject::getInstance();
 
 	globalFuncObject.saveQiXinShiJinDanXiangJiConfig();
 	globalFuncObject.saveSetConfig();
+	globalFuncObject.saveLimitConfig();
 }
 
 void KeyScanner::start_Threads()
@@ -426,14 +448,22 @@ void KeyScanner::pbtn_exit_clicked()
 
 void KeyScanner::pbtn_set_clicked()
 {
-	_dlgProductSet->setFixedSize(this->width(), this->height());
-	_dlgProductSet->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint);
-	_dlgProductSet->exec();
+	if (_dlgProductSet)
+	{
+		_dlgProductSet->setFixedSize(this->width(), this->height());
+		_dlgProductSet->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint);
+		_dlgProductSet->exec();
+	}
 }
 
-void KeyScanner::pbtn_start_clicked()
+void KeyScanner::pbtn_limit_clicked()
 {
-
+	if (_dlgLimit)
+	{
+		_dlgLimit->setFixedSize(this->width(), this->height());
+		_dlgLimit->setWindowFlags(Qt::Window | Qt::CustomizeWindowHint);
+		_dlgLimit->exec();
+	}
 }
 
 void KeyScanner::rbtn_debug_checked(bool checked)

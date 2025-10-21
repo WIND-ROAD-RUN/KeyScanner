@@ -10,6 +10,7 @@ public:
 	QString modelRootPath = projectHome + R"(model\)";
 	QString qiXinShiJinDanXiangJiConfigPath = configRootPath + R"(KeyScannerConfig.xml)";
 	QString setConfigPath = configRootPath + R"(SetConfig.xml)";
+	QString limitConfigPath = configRootPath + R"(LimitConfig.xml)";
 	QString modelPath = modelRootPath + R"(KeyScanner.engine)";
 }globalPath;
 

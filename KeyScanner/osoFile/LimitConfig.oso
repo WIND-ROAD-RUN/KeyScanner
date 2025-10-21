@@ -1,0 +1,16 @@
+#include <string>
+
+namespace cdm {
+	class LimitConfig
+	{
+	public:
+		waichi1xiaxian : double : default = 0.0;
+		waichi2xiaxian : double : default = 0.0;
+		waichi3xiaxian : double : default = 0.0;
+		waichi4xiaxian : double : default = 0.0;
+		waichi1shangxian : double : default = 0.0;
+		waichi2shangxian : double : default = 0.0;
+		waichi3shangxian : double : default = 0.0;
+		waichi4shangxian : double : default = 0.0;
+	};
+}

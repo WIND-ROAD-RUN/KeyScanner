@@ -9,6 +9,7 @@
 #include "oso_func.hpp"
 #include "oso_StorageContext.hpp"
 #include "rqw_RunEnvCheck.hpp"
+#include "DlgLimit.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class KeyScannerClass; };
@@ -28,10 +29,12 @@ public:
 	void build_DlgProductSet();
 	void ini_clickableTitle();
 	void build_DlgCloseForm();
+	void build_DlgLimitForm();
 public:
 	void read_config();
 	void read_config_KeyScannerConfig();
 	void read_config_DlgProductSetConfig();
+	void read_config_DlgLimitConfig();
 public:
 	void save_config();
 public:
@@ -76,7 +79,7 @@ private slots:
 private slots:
 	void pbtn_exit_clicked();
 	void pbtn_set_clicked();
-	void pbtn_start_clicked();
+	void pbtn_limit_clicked();
 	void rbtn_debug_checked(bool checked);
 	void rbtn_removeFunc_checked(bool checked);
 	void ckb_shibiekuang_checked(bool checked);
@@ -97,6 +100,7 @@ private:
 public:
 	DlgProductSet* _dlgProductSet = nullptr;
 	DlgCloseForm* _dlgCloseForm = nullptr;
+	DlgLimit* _dlgLimit = nullptr;
 private:
 	Ui::KeyScannerClass *ui;
 	int minimizeCount{ 3 };

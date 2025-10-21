@@ -13,6 +13,7 @@
 #include "ImageProcessorModule.hpp"
 #include "CameraAndCardStateThread.h"
 #include "rqw_ZMotion.hpp"
+#include "LimitConfig.hpp"
 
 
 enum class RunningState
@@ -105,6 +106,7 @@ public:
 	void buildConfigManager(rw::oso::StorageType type);
 	void saveQiXinShiJinDanXiangJiConfig();
 	void saveSetConfig();
+	void saveLimitConfig();
 };
 
 class GlobalData
@@ -136,4 +138,5 @@ public:
 public:
 	cdm::QiXinShiJinDanXiangJiConfig qiXinShiJinDanXiangJiConfig;
 	cdm::SetConfig setConfig;
+	cdm::LimitConfig limitConfig;
 };

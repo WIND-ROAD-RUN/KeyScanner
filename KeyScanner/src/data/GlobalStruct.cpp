@@ -243,6 +243,13 @@ void GlobalFuncObject::saveSetConfig()
 	storeContext->saveSafe(globalStruct.setConfig, setConfigPath);
 }
 
+void GlobalFuncObject::saveLimitConfig()
+{
+	auto& globalStruct = GlobalData::getInstance();
+	std::string limitConfigPath = globalPath.limitConfigPath.toStdString();
+	storeContext->saveSafe(globalStruct.limitConfig, limitConfigPath);
+}
+
 bool GlobalThread::isTargetCamera(const QString& cameraIndex, const QString& targetName)
 {
 	QRegularExpression regex(R"((\d+)\.(\d+)\.(\d+)\.(\d+))");

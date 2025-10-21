@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>KeyScannerClass</class>
- <widget class="QMainWindow" name="KeyScannerJiClass">
+ <widget class="QMainWindow" name="KeyScannerClass">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -701,7 +701,7 @@ QGroupBox::title {
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QPushButton" name="pbtn_start">
+            <widget class="QPushButton" name="pbtn_limit">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                <horstretch>0</horstretch>
@@ -729,7 +729,7 @@ QPushButton:pressed {
 }</string>
              </property>
              <property name="text">
-              <string>启动</string>
+              <string>限位</string>
              </property>
             </widget>
            </item>

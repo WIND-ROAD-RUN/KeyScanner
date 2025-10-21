@@ -23,7 +23,6 @@ public:
 signals:
 	void paramsChanged();
 
-public slots:
 private slots:
 	void btn_close_clicked();
 
