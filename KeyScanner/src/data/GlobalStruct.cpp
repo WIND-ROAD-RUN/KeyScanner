@@ -276,3 +276,15 @@ rw::rqw::CameraMetaData GlobalThread::cameraMetaDataCheck(const QString& cameraI
 	error.ip = "0";
 	return error;
 }
+
+void GlobalThread::build_TestImgPushThread()
+{
+	//testImgPushThread = std::make_unique<TestImgPushThread>();
+	//testImgPushThread->startThread();
+}
+
+void GlobalThread::destroy_TestImgPushThread()
+{
+	//testImgPushThread->stopThread();
+	//testImgPushThread.reset();
+}

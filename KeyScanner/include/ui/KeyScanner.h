@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QMainWindow>
-#include <HalconCpp/HalconCpp.h>
 #include <memory>
+#include <QCheckBox>
+
 #include "DlgProductSet.h"
 #include "rqw_LabelClickable.h"
 #include "DlgCloseForm.h"
@@ -10,6 +11,7 @@
 #include "oso_StorageContext.hpp"
 #include "rqw_RunEnvCheck.hpp"
 #include "DlgLimit.h"
+#include <QSpinBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class KeyScannerClass; };
@@ -18,6 +20,14 @@ QT_END_NAMESPACE
 class KeyScanner : public QMainWindow
 {
 	Q_OBJECT
+#ifdef BUILD_WITHOUT_HARDWARE
+private:
+	QCheckBox* _testIfPushImg;
+	QSpinBox* _pushImgTime;
+public slots:
+	void cbox_testIfPushImg_clicked(bool states);
+	void sBox_pushImgTime_valueChanged(int value);
+#endif
 
 public:
 	KeyScanner(QWidget *parent = nullptr);

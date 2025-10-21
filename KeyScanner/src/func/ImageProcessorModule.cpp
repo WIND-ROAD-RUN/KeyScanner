@@ -8,13 +8,12 @@
 #include <atomic>
 #include "GlobalStruct.hpp"
 #include "Utilty.hpp"
-#include "halconcpp/HalconCpp.h"
-#include "Halcon.h"
 #include <QPainter>
 #include <QPen>
 #include <cmath>
 #include <algorithm>
 #include "KeyScanner.h"
+#include "rqw_ImagePainter.h"
 
 namespace {
 	// 在给定最小间隔内只放行一次调用：成功返回 true，其他并发/过快的调用返回 false
@@ -266,13 +265,35 @@ void ImageProcessor::iniRunTextConfig()
 
 void ImageProcessor::drawLines(QImage& image)
 {
-	auto& index = imageProcessingModuleIndex;
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	rw::imgPro::ConfigDrawLine configDrawLine;
 	configDrawLine.color = rw::imgPro::Color::Red;
 	configDrawLine.thickness = 3;
 
-	// 绘制
+	double pixToWorld = setConfig.xiangsudangliang;
+	if (pixToWorld <= 0.0) {
+		return;
+	}
+
+	double yStart = setConfig.biaozhunxianshangjuli / pixToWorld;
+	int num = setConfig.biaozhunxianshuliang;
+	double yDifference = setConfig.biaozhunxianjiange / pixToWorld;
+
+	if (num <= 0) {
+		return;
+	}
+
+	for (int i = 0; i < num; ++i) {
+		double y = yStart + i * yDifference;
+		if (y < 0) {
+			continue;
+		}
+		if (y >= image.height()) {
+			break;
+		}
+		configDrawLine.position = y;
+		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
+	}
 }
 
 void ImageProcessor::updateDrawRec()

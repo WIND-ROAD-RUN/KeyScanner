@@ -4,7 +4,6 @@
 #include<QThread>
 
 #include "DetachDefectThread.h"
-#include "DetachDefectThread.h"
 #include"rqw_LabelWarning.h"
 #include"dsl_Heap.hpp"
 

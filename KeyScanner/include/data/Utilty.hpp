@@ -12,6 +12,8 @@ public:
 	QString setConfigPath = configRootPath + R"(SetConfig.xml)";
 	QString limitConfigPath = configRootPath + R"(LimitConfig.xml)";
 	QString modelPath = modelRootPath + R"(KeyScanner.engine)";
+
+	QString testImgDirPath = R"(D:\zfkjDevelopment\ImgStorage\KeyScanner)";
 }globalPath;
 
 

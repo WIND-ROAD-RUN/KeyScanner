@@ -14,6 +14,7 @@
 #include "CameraAndCardStateThread.h"
 #include "rqw_ZMotion.hpp"
 #include "LimitConfig.hpp"
+#include "TestImgPushThread.hpp"
 
 
 enum class RunningState
@@ -87,6 +88,13 @@ public:
 	bool isTargetCamera(const QString& cameraIndex, const QString& targetName);
 	rw::rqw::CameraMetaData cameraMetaDataCheck(const QString& cameraIndex, const QVector<rw::rqw::CameraMetaData>& cameraInfo);
 
+#ifdef BUILD_WITHOUT_HARDWARE
+public:
+	std::unique_ptr<TestImgPushThread> testImgPushThread{ nullptr };
+	std::atomic_bool testImgPush{ false };
+#endif
+	void build_TestImgPushThread();
+	void destroy_TestImgPushThread();
 };
 
 class GlobalFuncObject

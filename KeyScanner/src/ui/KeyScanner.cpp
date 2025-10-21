@@ -12,6 +12,20 @@
 #include "Utilty.hpp"
 
 
+void KeyScanner::cbox_testIfPushImg_clicked(bool states)
+{
+	GlobalThread::getInstance().testImgPush = states;
+}
+
+void KeyScanner::sBox_pushImgTime_valueChanged(int value)
+{
+	auto& globalThread = GlobalThread::getInstance();
+	if (globalThread.testImgPushThread)
+	{
+		globalThread.testImgPushThread->setPushImgTime(value);
+	}
+}
+
 KeyScanner::KeyScanner(QWidget* parent)
 	: QMainWindow(parent)
 	, ui(new Ui::KeyScannerClass())
@@ -190,8 +204,6 @@ void KeyScanner::stop_Threads()
 
 void KeyScanner::initializeComponents()
 {
-	auto& globalThread = GlobalThread::getInstance();
-
 	read_config();
 
 	build_ui();
@@ -214,15 +226,39 @@ void KeyScanner::initializeComponents()
 
 	start_Threads();
 
-#ifndef BUILD_WITHOUT_HARDWARE
-	start_camera();
+#ifdef BUILD_WITHOUT_HARDWARE
+	auto& globalThread = GlobalThread::getInstance();
+	_testIfPushImg = new QCheckBox(this);
+	_testIfPushImg->setText("图像推送状态");
+	ui->gBox_infor->layout()->addWidget(_testIfPushImg);
+	QObject::connect(_testIfPushImg, &QCheckBox::clicked,
+		this, &KeyScanner::cbox_testIfPushImg_clicked);
+
+	_pushImgTime = new QSpinBox(this);
+	_pushImgTime->setRange(50, 2000);
+	_pushImgTime->setSingleStep(50);
+	_pushImgTime->setValue(150);
+	ui->gBox_infor->layout()->addWidget(_pushImgTime);
+	QObject::connect(_pushImgTime, &QSpinBox::valueChanged,
+		this, &KeyScanner::sBox_pushImgTime_valueChanged);
+
+
+	globalThread.testImgPushThread = std::make_unique<TestImgPushThread>(this);
+	QObject::connect(globalThread.testImgPushThread.get(), &TestImgPushThread::imgReady1,
+		globalThread.modelCamera1.get(), &ImageProcessingModule::onFrameCaptured);
+
+	globalThread.testImgPushThread->startThread();
 #endif
 
 }
 
 void KeyScanner::destroyComponents()
 {
+#ifdef BUILD_WITHOUT_HARDWARE
 	auto& globalThread = GlobalThread::getInstance();
+	globalThread.testImgPushThread->stopThread();
+	globalThread.testImgPushThread.reset();
+#endif
 
 	stop_Threads();
 

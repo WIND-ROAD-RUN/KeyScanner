@@ -24,6 +24,7 @@ FIND_SOURCES_AND_HEADERS(INCLUDE_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/include/data
 	${CMAKE_CURRENT_SOURCE_DIR}/include/func
 	${CMAKE_CURRENT_SOURCE_DIR}/include/DetachThread
+	${CMAKE_CURRENT_SOURCE_DIR}/include/NoHardware
 )
 
 FIND_SOURCES_AND_HEADERS(SRC_LIST
@@ -32,6 +33,7 @@ FIND_SOURCES_AND_HEADERS(SRC_LIST
 	${CMAKE_CURRENT_SOURCE_DIR}/src/data
 	${CMAKE_CURRENT_SOURCE_DIR}/src/func
 	${CMAKE_CURRENT_SOURCE_DIR}/include/DetachThread
+	${CMAKE_CURRENT_SOURCE_DIR}/include/NoHardware
 )
 
 qt_add_executable(${PROJECT_NAME} 
@@ -49,15 +51,14 @@ target_include_directories(${PROJECT_NAME}
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/data
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/func
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/DetachThread
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include/NoHardware
 	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/osoInclude
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
-	PUBLIC ${Halcon_include}
 )
 
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Concurrent)
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE ${OpenCV_LIBS}
-	PUBLIC ${Halcon_libs}
 )
 
 target_link_libraries(${PROJECT_NAME} 
@@ -69,7 +70,6 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE rqwime
 	PRIVATE imgPro
 	PRIVATE rqwscc
-	PRIVATE rqwhalcon
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
