@@ -49,7 +49,7 @@ void DetachDefectThread::processQueue(std::unique_ptr<rw::dsl::ThreadSafeHeap<bo
 		// 记录结束时间并打印耗时（毫秒）
 		auto end = std::chrono::high_resolution_clock::now();
 		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-		std::cout << "[processQueue] WasteTime: " << duration << " mm" << std::endl;
+		//std::cout << "[processQueue] WasteTime: " << duration << " mm" << std::endl;
 		#endif
 
 		return;
@@ -58,7 +58,7 @@ void DetachDefectThread::processQueue(std::unique_ptr<rw::dsl::ThreadSafeHeap<bo
 	// 记录结束时间并打印耗时（毫秒）
 	auto end = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
-	std::cout << "[processQueue] WasteTime: " << duration << " mm" << std::endl;
+	//std::cout << "[processQueue] WasteTime: " << duration << " mm" << std::endl;
 	#endif
 }
 

@@ -39,6 +39,148 @@ ImageProcessor::ImageProcessor(QQueue<MatInfo>& queue, QMutex& mutex, QWaitCondi
 
 }
 
+KeyLinePixelCountResult countKeyLinePixels(
+	const rw::DetectionRectangleInfo& blade,
+	const rw::DetectionRectangleInfo& teeth,
+	int lineY,
+	const cv::Mat& mat
+) {
+	KeyLinePixelCountResult result;
+
+	if (!blade.segMaskValid || !teeth.segMaskValid) return result;
+	const cv::Mat& bladeMask = blade.mask_roi;
+	const cv::Mat& teethMask = teeth.mask_roi;
+
+	int totalCount{ 0 };
+	int bladeTotalCount{ 0 };
+	int teethTotalCount{ 0 };
+
+	int bladeTrueSegments = 0;
+	std::vector<int> bladeSegmentLengths;
+	int segmentStart = -1;
+	bool lastInBlade = false;
+	int currentSegmentLength = 0;
+	std::vector<std::pair<int, int>> bladeSegments;
+
+	std::pair<int, int> leftEmptyRange{ 0,0 };
+
+	std::pair<int, int> RightEmptyRange{ 0,0 };
+	std::pair<int, int> keyRange{ 0,0 };
+	std::pair<int, int> leftBladeRange{ 0,0 };
+	std::pair<int, int> rightBladeRange{ 0,0 };
+	std::pair<int, int> middleTeethRange{ 0,0 };
+
+
+	int y = lineY - blade.roi.y;
+	if (y <= blade.roi.height)
+	{
+		for (int x = 0; x < bladeMask.cols; ++x) {
+			bool inBlade = bladeMask.at<float>(y, x) > 0;
+			if (inBlade) {
+				totalCount++;
+				bladeTotalCount++;
+				currentSegmentLength++;
+			}
+			if (inBlade && !lastInBlade) {
+				bladeTrueSegments++;
+				currentSegmentLength = 1;
+				segmentStart = x; // 记录段起点
+			}
+			if (!inBlade && lastInBlade) {
+				bladeSegmentLengths.push_back(currentSegmentLength);
+				bladeSegments.push_back({ segmentStart, x - 1 }); // 记录段[left, right]
+				currentSegmentLength = 0;
+				segmentStart = -1;
+			}
+			lastInBlade = inBlade;
+		}
+		// 补最后一段
+		if (lastInBlade && currentSegmentLength > 0) {
+			bladeSegmentLengths.push_back(currentSegmentLength);
+			bladeSegments.push_back({ segmentStart, bladeMask.cols - 1 });
+		}
+
+		if (!bladeSegments.empty())
+		{
+			leftEmptyRange.second = blade.roi.x + bladeSegments.front().first;
+			RightEmptyRange.first = blade.roi.x + bladeSegments.back().second;
+			RightEmptyRange.second = mat.cols;
+			keyRange.first = leftEmptyRange.second;
+			keyRange.second = RightEmptyRange.first;
+			result.keyRange = keyRange;
+			result.leftEmptyRange = leftEmptyRange;
+			result.RightEmptyRange = RightEmptyRange;
+		}
+	}
+
+	y = lineY - teeth.roi.y;
+	std::vector<std::pair<int, int>> teethSegments;
+	int teethSegmentStart = -1;
+	bool lastInTeeth = false;
+	int currentTeethSegmentLength = 0;
+
+	if (y <= teeth.roi.height)
+	{
+		for (int x = 0; x < teethMask.cols; ++x)
+		{
+			bool inTeeth = teethMask.at<float>(y, x) > 0;
+
+			if (inTeeth) {
+				totalCount++;
+				teethTotalCount++;
+				currentTeethSegmentLength++;
+			}
+			if (inTeeth && !lastInTeeth) {
+				teethSegmentStart = x; // 新段起点
+				currentTeethSegmentLength = 1;
+			}
+			if (!inTeeth && lastInTeeth) {
+				teethSegments.push_back({ teethSegmentStart, x - 1 }); // 记录段[left, right]
+				currentTeethSegmentLength = 0;
+				teethSegmentStart = -1;
+			}
+			lastInTeeth = inTeeth;
+		}
+		// 补最后一段
+		if (lastInTeeth && currentTeethSegmentLength > 0) {
+			teethSegments.push_back({ teethSegmentStart, teethMask.cols - 1 });
+		}
+
+		if (teethSegments.size()==1)
+		{
+			middleTeethRange.first = teeth.roi.x + teethSegments.front().first;
+			middleTeethRange.second = teeth.roi.x + teethSegments.front().second;
+			result.middleTeethRange = middleTeethRange;
+		}
+	}
+
+
+
+	result.totalCount = totalCount;
+	result.bladeTotalCount = bladeTotalCount;
+	result.middleTeethCount = teethTotalCount;
+
+	if (bladeSegmentLengths.size() == 2)
+	{
+		result.leftBladeCount = bladeSegmentLengths[0];
+		result.rightBladeCount = bladeSegmentLengths[1];
+		leftBladeRange.first = blade.roi.x + bladeSegments[0].first;
+		leftBladeRange.second = blade.roi.x + bladeSegments[0].second;
+		rightBladeRange.first = blade.roi.x + bladeSegments[1].first;
+		rightBladeRange.second = blade.roi.x + bladeSegments[1].second;
+		result.leftBladeRange = leftBladeRange;
+		result.rightBladeRange = rightBladeRange;
+		
+	}
+	else
+	{
+		result.leftBladeCount = 0;
+		result.rightBladeCount = 0;
+	}
+
+	return result;
+}
+
 void ImageProcessor::run()
 {
 	while (!QThread::currentThread()->isInterruptionRequested()) {
@@ -96,6 +238,59 @@ void ImageProcessor::run_debug(MatInfo& frame)
 	auto defectResult = imgPro.getDefectResultInfo();
 
 	drawLines(maskImg);
+
+	int loc = 500;
+
+	rw::imgPro::ConfigDrawLine lineCfg;
+	lineCfg.position = loc;
+	rw::imgPro::ImagePainter::drawHorizontalLine(maskImg, lineCfg);
+
+	auto bodyIndexes = imgPro.getProcessResultIndexMap().at(ClassId::Body);
+	auto chiIndedxes= imgPro.getProcessResultIndexMap().at(ClassId::Chi);
+
+	int bodyIndex = 0;
+	for (const auto & item: bodyIndexes)
+	{
+		bodyIndex = item;
+	}
+	int chiIndex = 0;
+	for (const auto& item : chiIndedxes)
+	{
+		chiIndex = item;
+	}
+
+	auto proResult = imgPro.getProcessResult();
+
+	auto result=countKeyLinePixels(proResult[bodyIndex],proResult[chiIndex], loc,frame.image);
+
+	rw::imgPro::ConfigDrawSegment cfg;
+	cfg.startPoint = { result.leftBladeRange.first, loc };
+	cfg.endPoint = { result.leftBladeRange.second, loc };
+	cfg.thickness = 5;
+	cfg.color = rw::imgPro::Color::Blue;
+	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+	cfg.startPoint = { result.rightBladeRange.first, loc };
+	cfg.endPoint = { result.rightBladeRange.second, loc };
+	cfg.color = rw::imgPro::Color::Blue;
+	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+	cfg.startPoint = { result.leftEmptyRange.first, loc };
+	cfg.endPoint = { result.leftEmptyRange.second, loc };
+	cfg.color = rw::imgPro::Color::Orange;
+	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+	cfg.startPoint = { result.RightEmptyRange.first, loc };
+	cfg.endPoint = { result.RightEmptyRange.second, loc };
+	cfg.color = rw::imgPro::Color::Orange;
+	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+	cfg.startPoint = { result.middleTeethRange.first, loc };
+	cfg.endPoint = { result.middleTeethRange.second, loc };
+	cfg.color = rw::imgPro::Color::Gray;
+	rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+
+
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 }
@@ -190,10 +385,6 @@ void ImageProcessor::buildSEGModelEngine(const QString& enginePath)
 void ImageProcessor::iniIndexGetContext()
 {
 	auto& context = _imgProcess->context();
-
-	context.indexGetContext.removeIndicesIfByInfo = [this](const rw::DetectionRectangleInfo& info, const rw::imgPro::ImageProcessContext& imageProcessContext) {
-		return true;
-		};
 }
 
 void ImageProcessor::iniEliminationInfoFunc()
@@ -431,9 +622,9 @@ ImageProcessingModule::~ImageProcessingModule()
 void ImageProcessingModule::onFrameCaptured(rw::rqw::MatInfo matInfo, size_t index)
 {
 	// 手动读取本地图片
-	std::string imagePath = R"(C:\Users\zfkj4090\Desktop\yaoshi.bmp)"; // 替换为你的图片路径
-	cv::Mat frame1 = cv::imread(imagePath, cv::IMREAD_COLOR);
-	matInfo.mat = frame1.clone();
+	//std::string imagePath = R"(C:\Users\zfkj4090\Desktop\yaoshi.bmp)"; // 替换为你的图片路径
+	//cv::Mat frame1 = cv::imread(imagePath, cv::IMREAD_COLOR);
+	//matInfo.mat = frame1.clone();
 	if (matInfo.mat.channels() == 4) {
 		cv::cvtColor(matInfo.mat, matInfo.mat, cv::COLOR_BGRA2BGR);
 	}

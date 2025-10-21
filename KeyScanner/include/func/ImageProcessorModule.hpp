@@ -14,6 +14,25 @@
 
 #include "rqw_CameraObjectCore.hpp"
 
+struct KeyLinePixelCountResult {
+	int leftBladeCount = 0;
+	int rightBladeCount = 0;
+	int middleTeethCount = 0;
+	int totalCount = 0;
+	int bladeTotalCount = 0;
+	std::pair<int, int> leftEmptyRange{0,0};
+	std::pair<int, int> RightEmptyRange{ 0,0 };
+	std::pair<int, int> keyRange{0,0};
+	std::pair<int, int> leftBladeRange{0,0};
+	std::pair<int, int> rightBladeRange{0,0};
+	std::pair<int, int> middleTeethRange{0,0};
+};
+
+KeyLinePixelCountResult countKeyLinePixels(
+	const rw::DetectionRectangleInfo& blade,
+	const rw::DetectionRectangleInfo& teeth,
+	int lineY,
+	const cv::Mat & mat);
 
 // 图片信息
 struct MatInfo {
