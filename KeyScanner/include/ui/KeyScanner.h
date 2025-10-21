@@ -63,7 +63,6 @@ public:
 	void build_zmotion();
 	void destroy_zmotion();
 public slots:
-	void changeLanguage(int index);
 private slots:
 	void updateCameraLabelState(int cameraIndex, bool state);
 

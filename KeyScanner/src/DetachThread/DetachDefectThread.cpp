@@ -40,11 +40,7 @@ void DetachDefectThread::processQueue(std::unique_ptr<rw::dsl::ThreadSafeHeap<bo
 
 		if (isBad)
 		{
-			auto& setConfig = GlobalData::getInstance().setConfig;
-			auto& camera = GlobalThread::getInstance().camera1;
-			queue->tryPopTop(isBad);
-			QThread::msleep(setConfig.tifeiyanshi);
-			// 剔废动作
+			
 		}
 	}
 	catch (const std::runtime_error&)

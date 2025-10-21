@@ -93,12 +93,10 @@ void ImageProcessor::run_debug(MatInfo& frame)
 {
 	auto& imgPro = *_imgProcess;
 	imgPro(frame.image);
-	// 更新屏蔽线
-	updateShieldWires();
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
 
-	drawBoundariesLines(maskImg);
+	drawLines(maskImg);
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 }
@@ -130,8 +128,6 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 	positiveIsBadFuture.waitForFinished();
 	positiveIsBad = positiveIsBadFuture.result();
 
-	// 更新屏蔽线
-	updateShieldWires();
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
 
@@ -144,7 +140,7 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 
 	run_OpenRemoveFunc_emitErrorInfo(_isbad);
 
-	drawBoundariesLines(maskImg);
+	drawLines(maskImg);
 
 	emit imageNGReady(QPixmap::fromImage(maskImg), frame.index, defectResult.isBad);
 	emit
@@ -197,17 +193,7 @@ void ImageProcessor::iniIndexGetContext()
 	auto& context = _imgProcess->context();
 
 	context.indexGetContext.removeIndicesIfByInfo = [this](const rw::DetectionRectangleInfo& info, const rw::imgPro::ImageProcessContext& imageProcessContext) {
-		bool isInShieldWires = false;
-		if (-1 == topShieldWire || -1 == bottomShieldWire)
-		{
-			return false;
-		}
-
-		if (info.center_y > topShieldWire && info.center_y < bottomShieldWire)
-		{
-			isInShieldWires = true;
-		}
-		return !isInShieldWires;
+		return true;
 		};
 }
 
@@ -278,32 +264,15 @@ void ImageProcessor::iniRunTextConfig()
 	updateDrawText();
 }
 
-void ImageProcessor::drawBoundariesLines(QImage& image)
+void ImageProcessor::drawLines(QImage& image)
 {
 	auto& index = imageProcessingModuleIndex;
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	rw::imgPro::ConfigDrawLine configDrawLine;
 	configDrawLine.color = rw::imgPro::Color::Red;
 	configDrawLine.thickness = 3;
-	if (index == 1)
-	{
-		configDrawLine.position = setConfig.shangxianwei;
-		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
-		configDrawLine.position = setConfig.xiaxianwei;
-		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
-	}
-}
 
-void ImageProcessor::updateShieldWires()
-{
-	auto& globalStructSetConfig = GlobalData::getInstance().setConfig;
-	auto& index = imageProcessingModuleIndex;
-	if (1 == index)
-	{
-		topShieldWire = globalStructSetConfig.shangxianwei;
-		bottomShieldWire = globalStructSetConfig.xiaxianwei;
-	}
-
+	// 绘制
 }
 
 void ImageProcessor::updateDrawRec()
@@ -346,18 +315,18 @@ void ImageProcessor::updateParamMapsFromGlobalStruct()
 	auto& context = _imgProcess->context();
 	auto& globalStruct = GlobalData::getInstance();
 
-	BodyMap["classId"] = 0;
+	BodyMap["classId"] = ClassId::Body;
 	BodyMap["maxArea"] = 0;
-	BodyMap["maxScore"] = globalStruct.setConfig.score;
+	BodyMap["maxScore"] = 0;
 	BodyMap["enable"] = true;
 	if (1 == imageProcessingModuleIndex)
 	{
 		BodyMap["pixToWorld"] = globalStruct.setConfig.xiangsudangliang;
 	}
 
-	ChiMap["classId"] = 1;
+	ChiMap["classId"] = ClassId::Chi;
 	ChiMap["maxArea"] = 0;
-	ChiMap["maxScore"] = globalStruct.setConfig.score;
+	ChiMap["maxScore"] = 0;
 	ChiMap["enable"] = true;
 	if (1 == imageProcessingModuleIndex)
 	{

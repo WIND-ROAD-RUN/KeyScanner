@@ -73,15 +73,12 @@ void KeyScanner::build_KeyScannerData()
 	rbtn_removeFunc_checked(qiXinShiJinDanXiangJiConfig.isDefect);
 	ui->ckb_shibiekuang->setChecked(qiXinShiJinDanXiangJiConfig.isshibiekuang);
 	ui->ckb_wenzi->setChecked(qiXinShiJinDanXiangJiConfig.iswenzi);
-	changeLanguage(setConfig.changeLanguageIndex);
 	ini_clickableTitle();
 }
 
 void KeyScanner::build_DlgProductSet()
 {
 	_dlgProductSet = new DlgProductSet(this);
-
-	connect(_dlgProductSet, &DlgProductSet::emit_changeLanguage, this, &KeyScanner::changeLanguage);
 }
 
 void KeyScanner::ini_clickableTitle()
@@ -348,42 +345,6 @@ void KeyScanner::destroy_zmotion()
 	globalThread.Destroy_ZMotion();
 }
 
-void KeyScanner::changeLanguage(int index)
-{
-	// 中文
-	if (0 == index)
-	{
-		ui->label_cameraStateTitle->setText("相机状态");
-		ui->label_cardStateTitle->setText("板卡状态");
-		ui->label_info->setText("统计信息");
-		ui->pbtn_resetProduct->setText("产量清零");
-		ui->label_produceTotal->setText("生产总量");
-		ui->label_wasteProducts->setText("废品总量");
-		ui->rbtn_debug->setText("调试模式");
-		ui->ckb_shibiekuang->setText("识别框");
-		ui->ckb_wenzi->setText("文字");
-		ui->rbtn_removeFunc->setText("剔除功能");
-		ui->pbtn_start->setText("启动");
-		ui->pbtn_set->setText("设置");
-	}
-	// 英文
-	else if (1 == index)
-	{
-		ui->label_cameraStateTitle->setText("CameraState");
-		ui->label_cardStateTitle->setText("CardState");
-		ui->label_info->setText("Statistics");
-		ui->pbtn_resetProduct->setText("Clear");
-		ui->label_produceTotal->setText("TotalProduction");
-		ui->label_wasteProducts->setText("TotalWaste");
-		ui->rbtn_debug->setText("DebugMode");
-		ui->ckb_shibiekuang->setText("IdentificationBox");
-		ui->ckb_wenzi->setText("Word");
-		ui->rbtn_removeFunc->setText("RejectionFunction");
-		ui->pbtn_start->setText("Start");
-		ui->pbtn_set->setText("Set");
-	}
-}
-
 void KeyScanner::updateCameraLabelState(int cameraIndex, bool state)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
@@ -391,49 +352,21 @@ void KeyScanner::updateCameraLabelState(int cameraIndex, bool state)
 	{
 	case 0:
 		if (state) {
-			if (0 == setConfig.changeLanguageIndex)
-			{
-				ui->label_cardState->setText("连接成功");
-			}
-			else if (1 == setConfig.changeLanguageIndex)
-			{
-				ui->label_cardState->setText("Connected");
-			}
+			ui->label_cardState->setText("连接成功");
 			ui->label_cardState->setStyleSheet(QString("QLabel{color:rgb(0, 230, 0);font-size: 18px;font - weight: bold;padding: 5px 5px;} "));
 		}
 		else {
-			if (0 == setConfig.changeLanguageIndex)
-			{
-				ui->label_cardState->setText("连接失败");
-			}
-			else if (1 == setConfig.changeLanguageIndex)
-			{
-				ui->label_cardState->setText("Disconnected");
-			}
+			ui->label_cardState->setText("连接失败");
 			ui->label_cardState->setStyleSheet(QString("QLabel{color:rgb(230, 0, 0);font-size: 18px;font - weight: bold;padding: 5px 5px;} "));
 		}
 		break;
 	case 1:
 		if (state) {
-			if (0 == setConfig.changeLanguageIndex)
-			{
-				ui->label_camera1State->setText("连接成功");
-			}
-			else if (1 == setConfig.changeLanguageIndex)
-			{
-				ui->label_camera1State->setText("Connected");
-			}
+			ui->label_camera1State->setText("连接成功");
 			ui->label_camera1State->setStyleSheet(QString("QLabel{color:rgb(0, 230, 0);font-size: 18px;font - weight: bold;padding: 5px 5px;} "));
 		}
 		else {
-			if (0 == setConfig.changeLanguageIndex)
-			{
-				ui->label_camera1State->setText("连接失败");
-			}
-			else if (1 == setConfig.changeLanguageIndex)
-			{
-				ui->label_camera1State->setText("Disconnected");
-			}
+			ui->label_camera1State->setText("连接失败");
 			ui->label_camera1State->setStyleSheet(QString("QLabel{color:rgb(230, 0, 0);font-size: 18px;font - weight: bold;padding: 5px 5px;} "));
 		}
 		break;
@@ -500,7 +433,7 @@ void KeyScanner::pbtn_set_clicked()
 
 void KeyScanner::pbtn_start_clicked()
 {
-	
+
 }
 
 void KeyScanner::rbtn_debug_checked(bool checked)

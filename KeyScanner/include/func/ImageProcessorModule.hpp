@@ -64,9 +64,7 @@ public:
 
 public:
 	// 在指定位置画横线
-	void drawBoundariesLines(QImage& image);
-	// 更新屏蔽线
-	void updateShieldWires();
+	void drawLines(QImage& image);
 
 public slots:
 	void updateDrawRec();
@@ -86,8 +84,6 @@ private:
 	int _workIndex;
 public:
 	int imageProcessingModuleIndex;
-	int topShieldWire{ -1 };
-	int bottomShieldWire{ -1 };
 };
 
 

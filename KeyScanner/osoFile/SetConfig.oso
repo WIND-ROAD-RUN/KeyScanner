@@ -4,22 +4,11 @@ namespace cdm {
 	class SetConfig
 	{
 	public:
-		chuiqishijian : double : default = 0;
 		xiangsudangliang : double : default = 0;
-		jishuguangdianyanshi : double : default = 0;
-		paizhaoyanshi : double : default = 0;
-		tifeiyanshi : double : default = 0;
-		score : double : default = 0;
-		cipinguangdianjiange : int : default = 0;
-		fenliaojishu : double : default = 0;
-		xiangjiguangdianpingbishijian : double : default = 0;
-		pidaiduibiyanse : double : default = 0;
-
-		shangxianwei : double : default = 0;
-		xiaxianwei : double : default = 0;
+		biaozhunxianjiange : double : default = 0;
+		biaozhunxianshangjuli : double : default = 0;
+		biaozhunxianshuliang : int : default = 0;
 		baoguang : double : default = 0;
 		zengyi : double : default = 0;
-
-		changeLanguageIndex : int : default = 0;
 	};
 }
