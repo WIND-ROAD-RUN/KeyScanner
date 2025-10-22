@@ -496,6 +496,8 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 		if (0 != result.totalCount)
 		{
 			rw::imgPro::ConfigDrawSegment cfg;
+			cfg.text = "1";
+			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Right;
 			cfg.startPoint = { result.leftBladeRange.first, loc };
 			cfg.endPoint = { result.leftBladeRange.second, loc };
 			cfg.thickness = 5;
