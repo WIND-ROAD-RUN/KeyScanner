@@ -177,6 +177,15 @@ KeyLinePixelCountResult countKeyLinePixels(
 		result.rightBladeRange = rightBladeRange;
 		
 	}
+	else if (bladeSegmentLengths.size() == 1)
+	{
+		leftBladeRange.first = blade.roi.x + bladeSegments[0].first;
+		leftBladeRange.second = blade.roi.x + bladeSegments[0].second;
+		result.leftBladeRange = leftBladeRange;
+		rightBladeRange.first = leftBladeRange.first;
+		rightBladeRange.second = leftBladeRange.second;
+		result.rightBladeRange = rightBladeRange;
+	}
 	else if (bladeSegmentLengths.size() == 0)
 	{
 		leftEmptyRange.first = 0;
