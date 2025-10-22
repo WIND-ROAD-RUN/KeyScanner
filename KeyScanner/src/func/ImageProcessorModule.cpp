@@ -177,6 +177,16 @@ KeyLinePixelCountResult countKeyLinePixels(
 		result.rightBladeRange = rightBladeRange;
 		
 	}
+	else if (bladeSegmentLengths.size() == 0)
+	{
+		leftEmptyRange.first = 0;
+		leftEmptyRange.second = middleTeethRange.first;
+		RightEmptyRange.first = middleTeethRange.second;
+		RightEmptyRange.second = mat.cols;
+		result.leftEmptyRange = leftEmptyRange;
+		result.RightEmptyRange = RightEmptyRange;
+
+	}
 	else
 	{
 		result.leftBladeCount = 0;
