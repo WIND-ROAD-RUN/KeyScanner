@@ -288,6 +288,7 @@ void KeyScanner::build_camera()
 
 	auto build1Result = globalThread.buildCamera1();
 	updateCameraLabelState(1, build1Result);
+	start_camera();
 }
 
 void KeyScanner::start_camera()
