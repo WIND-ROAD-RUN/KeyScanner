@@ -515,10 +515,10 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Left;
 			cfg.startPoint = { result.leftBladeRange.first, loc };
 			cfg.endPoint = { result.leftBladeRange.second, loc };
-			int dis = static_cast<int>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			double dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
-				cfg.text = QString::number(dis);
+				cfg.text = QString::number(dis, 'f', 2);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -526,10 +526,10 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Right;
 			cfg.startPoint = { result.rightBladeRange.first, loc };
 			cfg.endPoint = { result.rightBladeRange.second, loc };
-			dis = static_cast<int>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
-				cfg.text = QString::number(dis);
+				cfg.text = QString::number(dis, 'f', 2);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -537,10 +537,10 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.leftEmptyRange.first, loc };
 			cfg.endPoint = { result.leftEmptyRange.second, loc };
-			dis = static_cast<int>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
-				cfg.text = QString::number(dis);
+				cfg.text = QString::number(dis, 'f', 2);
 				cfg.color = rw::imgPro::Color::Orange;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -548,10 +548,10 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.RightEmptyRange.first, loc };
 			cfg.endPoint = { result.RightEmptyRange.second, loc };
-			dis = static_cast<int>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
-				cfg.text = QString::number(dis);
+				cfg.text = QString::number(dis, 'f', 2);
 				cfg.color = rw::imgPro::Color::Orange;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -559,10 +559,10 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.middleTeethRange.first, loc };
 			cfg.endPoint = { result.middleTeethRange.second, loc };
-			dis = static_cast<int>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
-				cfg.text = QString::number(dis);
+				cfg.text = QString::number(dis, 'f', 2);
 				cfg.color = rw::imgPro::Color::Gray;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
