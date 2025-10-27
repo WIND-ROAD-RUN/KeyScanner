@@ -5,9 +5,12 @@ namespace cdm {
 	{
 	public:
 		xiangsudangliang : double : default = 0;
-		biaozhunxianjiange : double : default = 0;
-		biaozhunxianshangjuli : double : default = 0;
-		biaozhunxianshuliang : int : default = 0;
+		zuobiaozhunxianjiange : double : default = 0;
+		zuobiaozhunxianshangjuli : double : default = 0;
+		zuobiaozhunxianshuliang : int : default = 0;
+		youbiaozhunxianjiange : double : default = 0;
+		youbiaozhunxianshangjuli : double : default = 0;
+		youbiaozhunxianshuliang : int : default = 0;
 		baoguang : double : default = 0;
 		zengyi : double : default = 0;
 	};

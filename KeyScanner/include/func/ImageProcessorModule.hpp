@@ -82,9 +82,10 @@ public:
 
 
 public:
-	// 在指定位置画横线
-	void drawLines(QImage& image);
 	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage);
+
+	void drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex);
+	void drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex);
 public slots:
 	void updateDrawRec();
 	void updateDrawText();

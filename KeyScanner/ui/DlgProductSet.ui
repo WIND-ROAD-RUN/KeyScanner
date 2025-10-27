@@ -196,7 +196,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianjiange">
+                    <widget class="QPushButton" name="btn_zuobiaozhunxianjiange">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -417,7 +417,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianshuliang">
+                    <widget class="QPushButton" name="btn_zuobiaozhunxianshuliang">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -638,7 +638,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianshangjuli">
+                    <widget class="QPushButton" name="btn_zuobiaozhunxianshangjuli">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -868,7 +868,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianjiange_2">
+                    <widget class="QPushButton" name="btn_youbiaozhunxianjiange">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -1089,7 +1089,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianshuliang_2">
+                    <widget class="QPushButton" name="btn_youbiaozhunxianshuliang">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>
@@ -1310,7 +1310,7 @@ QLabel.icon {
                     </widget>
                    </item>
                    <item>
-                    <widget class="QPushButton" name="btn_biaozhunxianshangjuli_2">
+                    <widget class="QPushButton" name="btn_youbiaozhunxianshangjuli">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
                        <horstretch>0</horstretch>

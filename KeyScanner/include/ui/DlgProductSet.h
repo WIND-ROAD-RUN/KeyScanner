@@ -27,9 +27,12 @@ private slots:
 	void btn_close_clicked();
 
 	void btn_xiangsudangliang_clicked();
-	void btn_biaozhunxianjiange_clicked();
-	void btn_biaozhunxianshangjuli_clicked();
-	void btn_biaozhunxianshuliang_clicked();
+	void btn_zuobiaozhunxianjiange_clicked();
+	void btn_zuobiaozhunxianshangjuli_clicked();
+	void btn_zuobiaozhunxianshuliang_clicked();
+	void btn_youbiaozhunxianjiange_clicked();
+	void btn_youbiaozhunxianshangjuli_clicked();
+	void btn_youbiaozhunxianshuliang_clicked();
 
 	void btn_baoguang_clicked();
 	void btn_zengyi_clicked();

@@ -77,7 +77,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 		return result;
 	}
 
-	if (y <= blade.roi.height)
+	if (y < blade.roi.height)
 	{
 		for (int x = 0; y>=0&&x < bladeMask.cols; ++x) {
 			bool inBlade = bladeMask.at<float>(y, x) > 0;
@@ -124,7 +124,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 	bool lastInTeeth = false;
 	int currentTeethSegmentLength = 0;
 
-	if (y <= teeth.roi.height)
+	if (y < teeth.roi.height)
 	{
 		for (int x = 0;y >= 0&&x < teethMask.cols; ++x)
 		{
@@ -305,10 +305,7 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 
 	run_OpenRemoveFunc_emitErrorInfo(_isbad);
 
-	drawLines(maskImg);
-
 	emit imageNGReady(QPixmap::fromImage(maskImg), frame.index, defectResult.isBad);
-	emit
 }
 
 void ImageProcessor::run_OpenRemoveFunc_emitErrorInfo(bool isbad) const
@@ -425,53 +422,12 @@ void ImageProcessor::iniRunTextConfig()
 	updateDrawText();
 }
 
-void ImageProcessor::drawLines(QImage& image)
-{
-	auto& setConfig = GlobalData::getInstance().setConfig;
-	rw::imgPro::ConfigDrawLine configDrawLine;
-	configDrawLine.color = rw::imgPro::Color::Red;
-	configDrawLine.thickness = 3;
-
-	double pixToWorld = setConfig.xiangsudangliang;
-	if (pixToWorld <= 0.0) {
-		return;
-	}
-
-	double yStart = setConfig.biaozhunxianshangjuli / pixToWorld;
-	int num = setConfig.biaozhunxianshuliang;
-	double yDifference = setConfig.biaozhunxianjiange / pixToWorld;
-
-	if (num <= 0) {
-		return;
-	}
-
-	for (int i = 0; i < num; ++i) {
-		double y = yStart + i * yDifference;
-		if (y < 0) {
-			continue;
-		}
-		if (y >= image.height()) {
-			break;
-		}
-		configDrawLine.position = y;
-		rw::imgPro::ImagePainter::drawHorizontalLine(image, configDrawLine);
-	}
-}
-
 void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 {
 	auto& imgPro = *_imgProcess;
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
 	if (pixToWorld <= 0.0) {
-		return;
-	}
-
-	double yStart = setConfig.biaozhunxianshangjuli / pixToWorld;
-	int num = setConfig.biaozhunxianshuliang;
-	double yDifference = setConfig.biaozhunxianjiange / pixToWorld;
-
-	if (num <= 0) {
 		return;
 	}
 
@@ -494,8 +450,25 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 		chiIndex = item;
 	}
 
+	auto processResult = imgPro.getProcessResult();
 
-	auto proResult = imgPro.getProcessResult();
+	drawLeftKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex);
+	drawRightKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex);
+}
+
+void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
+	const int& chiIndex)
+{
+	auto& setConfig = GlobalData::getInstance().setConfig;
+	double pixToWorld = setConfig.xiangsudangliang;
+
+	double yStart = setConfig.zuobiaozhunxianshangjuli / pixToWorld;
+	int num = setConfig.zuobiaozhunxianshuliang;
+	double yDifference = setConfig.zuobiaozhunxianjiange / pixToWorld;
+
+	if (num <= 0) {
+		return;
+	}
 
 	for (int i = 0; i < num; ++i) {
 		double y = yStart + i * yDifference;
@@ -506,7 +479,7 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			break;
 		}
 		auto loc = y;
-		auto result = countKeyLinePixels(proResult[bodyIndex], proResult[chiIndex], loc, rowImage);
+		auto result = countKeyLinePixels(processResult[bodyIndex], processResult[chiIndex], loc, rowImage);
 		if (0 != result.totalCount)
 		{
 			rw::imgPro::ConfigDrawSegment cfg;
@@ -516,17 +489,6 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			cfg.startPoint = { result.leftBladeRange.first, loc };
 			cfg.endPoint = { result.leftBladeRange.second, loc };
 			double dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
-			if (0 != dis)
-			{
-				cfg.text = QString::number(dis, 'f', 2);
-				cfg.color = rw::imgPro::Color::Blue;
-				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-			}
-
-			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Right;
-			cfg.startPoint = { result.rightBladeRange.first, loc };
-			cfg.endPoint = { result.rightBladeRange.second, loc };
-			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
 				cfg.text = QString::number(dis, 'f', 2);
@@ -544,11 +506,52 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 				cfg.color = rw::imgPro::Color::Orange;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
+		}
+		else
+		{
+			rw::imgPro::ConfigDrawLine configDrawLine;
+			configDrawLine.color = rw::imgPro::Color::Red;
+			configDrawLine.thickness = 3;
+			configDrawLine.position = y;
+			rw::imgPro::ImagePainter::drawHorizontalLine(maskImg, configDrawLine);
+		}
+	}
+}
+
+void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
+	const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex)
+{
+	auto& setConfig = GlobalData::getInstance().setConfig;
+	double pixToWorld = setConfig.xiangsudangliang;
+
+	double yStart = setConfig.youbiaozhunxianshangjuli / pixToWorld;
+	int num = setConfig.youbiaozhunxianshuliang;
+	double yDifference = setConfig.youbiaozhunxianjiange / pixToWorld;
+
+	if (num <= 0) {
+		return;
+	}
+
+	for (int i = 0; i < num; ++i) {
+		double y = yStart + i * yDifference;
+		if (y < 0) {
+			continue;
+		}
+		if (y >= rowImage.rows) {
+			break;
+		}
+		auto loc = y;
+		auto result = countKeyLinePixels(processResult[bodyIndex], processResult[chiIndex], loc, rowImage);
+		if (0 != result.totalCount)
+		{
+			rw::imgPro::ConfigDrawSegment cfg;
+			cfg.fontSize = 24;
+			cfg.thickness = 5;
 
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.RightEmptyRange.first, loc };
 			cfg.endPoint = { result.RightEmptyRange.second, loc };
-			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
+			double dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
 				cfg.text = QString::number(dis, 'f', 2);
@@ -557,13 +560,13 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 			}
 
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
-			cfg.startPoint = { result.middleTeethRange.first, loc };
-			cfg.endPoint = { result.middleTeethRange.second, loc };
+			cfg.startPoint = { result.rightBladeRange.first, loc };
+			cfg.endPoint = { result.rightBladeRange.second, loc };
 			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
 			if (0 != dis)
 			{
 				cfg.text = QString::number(dis, 'f', 2);
-				cfg.color = rw::imgPro::Color::Gray;
+				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
 		}

@@ -20,9 +20,12 @@ namespace cdm {
 
     public:
         double xiangsudangliang{ 0 };
-        double biaozhunxianjiange{ 0 };
-        double biaozhunxianshangjuli{ 0 };
-        int biaozhunxianshuliang{ 0 };
+        double zuobiaozhunxianjiange{ 0 };
+        double zuobiaozhunxianshangjuli{ 0 };
+        int zuobiaozhunxianshuliang{ 0 };
+        double youbiaozhunxianjiange{ 0 };
+        double youbiaozhunxianshangjuli{ 0 };
+        int youbiaozhunxianshuliang{ 0 };
         double baoguang{ 0 };
         double zengyi{ 0 };
     };
@@ -39,21 +42,36 @@ namespace cdm {
             throw std::runtime_error("$variable$xiangsudangliang is not found");
         }
         xiangsudangliang = xiangsudangliangItem->getValueAsDouble();
-        auto biaozhunxianjiangeItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$biaozhunxianjiange$"));
-        if (!biaozhunxianjiangeItem) {
-            throw std::runtime_error("$variable$biaozhunxianjiange is not found");
+        auto zuobiaozhunxianjiangeItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$zuobiaozhunxianjiange$"));
+        if (!zuobiaozhunxianjiangeItem) {
+            throw std::runtime_error("$variable$zuobiaozhunxianjiange is not found");
         }
-        biaozhunxianjiange = biaozhunxianjiangeItem->getValueAsDouble();
-        auto biaozhunxianshangjuliItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$biaozhunxianshangjuli$"));
-        if (!biaozhunxianshangjuliItem) {
-            throw std::runtime_error("$variable$biaozhunxianshangjuli is not found");
+        zuobiaozhunxianjiange = zuobiaozhunxianjiangeItem->getValueAsDouble();
+        auto zuobiaozhunxianshangjuliItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$zuobiaozhunxianshangjuli$"));
+        if (!zuobiaozhunxianshangjuliItem) {
+            throw std::runtime_error("$variable$zuobiaozhunxianshangjuli is not found");
         }
-        biaozhunxianshangjuli = biaozhunxianshangjuliItem->getValueAsDouble();
-        auto biaozhunxianshuliangItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$biaozhunxianshuliang$"));
-        if (!biaozhunxianshuliangItem) {
-            throw std::runtime_error("$variable$biaozhunxianshuliang is not found");
+        zuobiaozhunxianshangjuli = zuobiaozhunxianshangjuliItem->getValueAsDouble();
+        auto zuobiaozhunxianshuliangItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$zuobiaozhunxianshuliang$"));
+        if (!zuobiaozhunxianshuliangItem) {
+            throw std::runtime_error("$variable$zuobiaozhunxianshuliang is not found");
         }
-        biaozhunxianshuliang = biaozhunxianshuliangItem->getValueAsInt();
+        zuobiaozhunxianshuliang = zuobiaozhunxianshuliangItem->getValueAsInt();
+        auto youbiaozhunxianjiangeItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$youbiaozhunxianjiange$"));
+        if (!youbiaozhunxianjiangeItem) {
+            throw std::runtime_error("$variable$youbiaozhunxianjiange is not found");
+        }
+        youbiaozhunxianjiange = youbiaozhunxianjiangeItem->getValueAsDouble();
+        auto youbiaozhunxianshangjuliItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$youbiaozhunxianshangjuli$"));
+        if (!youbiaozhunxianshangjuliItem) {
+            throw std::runtime_error("$variable$youbiaozhunxianshangjuli is not found");
+        }
+        youbiaozhunxianshangjuli = youbiaozhunxianshangjuliItem->getValueAsDouble();
+        auto youbiaozhunxianshuliangItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$youbiaozhunxianshuliang$"));
+        if (!youbiaozhunxianshuliangItem) {
+            throw std::runtime_error("$variable$youbiaozhunxianshuliang is not found");
+        }
+        youbiaozhunxianshuliang = youbiaozhunxianshuliangItem->getValueAsInt();
         auto baoguangItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$baoguang$"));
         if (!baoguangItem) {
             throw std::runtime_error("$variable$baoguang is not found");
@@ -69,9 +87,12 @@ namespace cdm {
     inline SetConfig::SetConfig(const SetConfig& obj)
     {
         xiangsudangliang = obj.xiangsudangliang;
-        biaozhunxianjiange = obj.biaozhunxianjiange;
-        biaozhunxianshangjuli = obj.biaozhunxianshangjuli;
-        biaozhunxianshuliang = obj.biaozhunxianshuliang;
+        zuobiaozhunxianjiange = obj.zuobiaozhunxianjiange;
+        zuobiaozhunxianshangjuli = obj.zuobiaozhunxianshangjuli;
+        zuobiaozhunxianshuliang = obj.zuobiaozhunxianshuliang;
+        youbiaozhunxianjiange = obj.youbiaozhunxianjiange;
+        youbiaozhunxianshangjuli = obj.youbiaozhunxianshangjuli;
+        youbiaozhunxianshuliang = obj.youbiaozhunxianshuliang;
         baoguang = obj.baoguang;
         zengyi = obj.zengyi;
     }
@@ -80,9 +101,12 @@ namespace cdm {
     {
         if (this != &obj) {
             xiangsudangliang = obj.xiangsudangliang;
-            biaozhunxianjiange = obj.biaozhunxianjiange;
-            biaozhunxianshangjuli = obj.biaozhunxianshangjuli;
-            biaozhunxianshuliang = obj.biaozhunxianshuliang;
+            zuobiaozhunxianjiange = obj.zuobiaozhunxianjiange;
+            zuobiaozhunxianshangjuli = obj.zuobiaozhunxianshangjuli;
+            zuobiaozhunxianshuliang = obj.zuobiaozhunxianshuliang;
+            youbiaozhunxianjiange = obj.youbiaozhunxianjiange;
+            youbiaozhunxianshangjuli = obj.youbiaozhunxianshangjuli;
+            youbiaozhunxianshuliang = obj.youbiaozhunxianshuliang;
             baoguang = obj.baoguang;
             zengyi = obj.zengyi;
         }
@@ -97,18 +121,30 @@ namespace cdm {
         xiangsudangliangItem->setName("$variable$xiangsudangliang$");
         xiangsudangliangItem->setValueFromDouble(xiangsudangliang);
         assembly.addItem(xiangsudangliangItem);
-        auto biaozhunxianjiangeItem = std::make_shared<rw::oso::ObjectStoreItem>();
-        biaozhunxianjiangeItem->setName("$variable$biaozhunxianjiange$");
-        biaozhunxianjiangeItem->setValueFromDouble(biaozhunxianjiange);
-        assembly.addItem(biaozhunxianjiangeItem);
-        auto biaozhunxianshangjuliItem = std::make_shared<rw::oso::ObjectStoreItem>();
-        biaozhunxianshangjuliItem->setName("$variable$biaozhunxianshangjuli$");
-        biaozhunxianshangjuliItem->setValueFromDouble(biaozhunxianshangjuli);
-        assembly.addItem(biaozhunxianshangjuliItem);
-        auto biaozhunxianshuliangItem = std::make_shared<rw::oso::ObjectStoreItem>();
-        biaozhunxianshuliangItem->setName("$variable$biaozhunxianshuliang$");
-        biaozhunxianshuliangItem->setValueFromInt(biaozhunxianshuliang);
-        assembly.addItem(biaozhunxianshuliangItem);
+        auto zuobiaozhunxianjiangeItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        zuobiaozhunxianjiangeItem->setName("$variable$zuobiaozhunxianjiange$");
+        zuobiaozhunxianjiangeItem->setValueFromDouble(zuobiaozhunxianjiange);
+        assembly.addItem(zuobiaozhunxianjiangeItem);
+        auto zuobiaozhunxianshangjuliItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        zuobiaozhunxianshangjuliItem->setName("$variable$zuobiaozhunxianshangjuli$");
+        zuobiaozhunxianshangjuliItem->setValueFromDouble(zuobiaozhunxianshangjuli);
+        assembly.addItem(zuobiaozhunxianshangjuliItem);
+        auto zuobiaozhunxianshuliangItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        zuobiaozhunxianshuliangItem->setName("$variable$zuobiaozhunxianshuliang$");
+        zuobiaozhunxianshuliangItem->setValueFromInt(zuobiaozhunxianshuliang);
+        assembly.addItem(zuobiaozhunxianshuliangItem);
+        auto youbiaozhunxianjiangeItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        youbiaozhunxianjiangeItem->setName("$variable$youbiaozhunxianjiange$");
+        youbiaozhunxianjiangeItem->setValueFromDouble(youbiaozhunxianjiange);
+        assembly.addItem(youbiaozhunxianjiangeItem);
+        auto youbiaozhunxianshangjuliItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        youbiaozhunxianshangjuliItem->setName("$variable$youbiaozhunxianshangjuli$");
+        youbiaozhunxianshangjuliItem->setValueFromDouble(youbiaozhunxianshangjuli);
+        assembly.addItem(youbiaozhunxianshangjuliItem);
+        auto youbiaozhunxianshuliangItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        youbiaozhunxianshuliangItem->setName("$variable$youbiaozhunxianshuliang$");
+        youbiaozhunxianshuliangItem->setValueFromInt(youbiaozhunxianshuliang);
+        assembly.addItem(youbiaozhunxianshuliangItem);
         auto baoguangItem = std::make_shared<rw::oso::ObjectStoreItem>();
         baoguangItem->setName("$variable$baoguang$");
         baoguangItem->setValueFromDouble(baoguang);
@@ -122,7 +158,7 @@ namespace cdm {
 
     inline bool SetConfig::operator==(const SetConfig& obj) const
     {
-        return xiangsudangliang == obj.xiangsudangliang && biaozhunxianjiange == obj.biaozhunxianjiange && biaozhunxianshangjuli == obj.biaozhunxianshangjuli && biaozhunxianshuliang == obj.biaozhunxianshuliang && baoguang == obj.baoguang && zengyi == obj.zengyi;
+        return xiangsudangliang == obj.xiangsudangliang && zuobiaozhunxianjiange == obj.zuobiaozhunxianjiange && zuobiaozhunxianshangjuli == obj.zuobiaozhunxianshangjuli && zuobiaozhunxianshuliang == obj.zuobiaozhunxianshuliang && youbiaozhunxianjiange == obj.youbiaozhunxianjiange && youbiaozhunxianshangjuli == obj.youbiaozhunxianshangjuli && youbiaozhunxianshuliang == obj.youbiaozhunxianshuliang && baoguang == obj.baoguang && zengyi == obj.zengyi;
     }
 
     inline bool SetConfig::operator!=(const SetConfig& obj) const
