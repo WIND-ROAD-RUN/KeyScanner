@@ -79,7 +79,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 
 	if (y <= blade.roi.height)
 	{
-		for (int x = 0; x < bladeMask.cols; ++x) {
+		for (int x = 0; y>=0&&x < bladeMask.cols; ++x) {
 			bool inBlade = bladeMask.at<float>(y, x) > 0;
 			if (inBlade) {
 				totalCount++;
@@ -126,7 +126,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 
 	if (y <= teeth.roi.height)
 	{
-		for (int x = 0; x < teethMask.cols; ++x)
+		for (int x = 0;y >= 0&&x < teethMask.cols; ++x)
 		{
 			bool inTeeth = teethMask.at<float>(y, x) > 0;
 
