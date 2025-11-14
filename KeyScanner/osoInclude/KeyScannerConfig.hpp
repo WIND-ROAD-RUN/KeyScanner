@@ -25,6 +25,7 @@ namespace cdm {
         bool isDefect{ false };
         bool isshibiekuang{ true };
         bool iswenzi{ true };
+        bool isSaveImg{ false };
     };
 
     inline QiXinShiJinDanXiangJiConfig::QiXinShiJinDanXiangJiConfig(const rw::oso::ObjectStoreAssembly& assembly)
@@ -64,6 +65,11 @@ namespace cdm {
             throw std::runtime_error("$variable$iswenzi is not found");
         }
         iswenzi = iswenziItem->getValueAsBool();
+        auto isSaveImgItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$isSaveImg$"));
+        if (!isSaveImgItem) {
+            throw std::runtime_error("$variable$isSaveImg is not found");
+        }
+        isSaveImg = isSaveImgItem->getValueAsBool();
     }
 
     inline QiXinShiJinDanXiangJiConfig::QiXinShiJinDanXiangJiConfig(const QiXinShiJinDanXiangJiConfig& obj)
@@ -74,6 +80,7 @@ namespace cdm {
         isDefect = obj.isDefect;
         isshibiekuang = obj.isshibiekuang;
         iswenzi = obj.iswenzi;
+        isSaveImg = obj.isSaveImg;
     }
 
     inline QiXinShiJinDanXiangJiConfig& QiXinShiJinDanXiangJiConfig::operator=(const QiXinShiJinDanXiangJiConfig& obj)
@@ -85,6 +92,7 @@ namespace cdm {
             isDefect = obj.isDefect;
             isshibiekuang = obj.isshibiekuang;
             iswenzi = obj.iswenzi;
+            isSaveImg = obj.isSaveImg;
         }
         return *this;
     }
@@ -117,12 +125,16 @@ namespace cdm {
         iswenziItem->setName("$variable$iswenzi$");
         iswenziItem->setValueFromBool(iswenzi);
         assembly.addItem(iswenziItem);
+        auto isSaveImgItem = std::make_shared<rw::oso::ObjectStoreItem>();
+        isSaveImgItem->setName("$variable$isSaveImg$");
+        isSaveImgItem->setValueFromBool(isSaveImg);
+        assembly.addItem(isSaveImgItem);
         return assembly;
     }
 
     inline bool QiXinShiJinDanXiangJiConfig::operator==(const QiXinShiJinDanXiangJiConfig& obj) const
     {
-        return totalProductionVolume == obj.totalProductionVolume && totalDefectiveVolume == obj.totalDefectiveVolume && isDebug == obj.isDebug && isDefect == obj.isDefect && isshibiekuang == obj.isshibiekuang && iswenzi == obj.iswenzi;
+        return totalProductionVolume == obj.totalProductionVolume && totalDefectiveVolume == obj.totalDefectiveVolume && isDebug == obj.isDebug && isDefect == obj.isDefect && isshibiekuang == obj.isshibiekuang && iswenzi == obj.iswenzi && isSaveImg == obj.isSaveImg;
     }
 
     inline bool QiXinShiJinDanXiangJiConfig::operator!=(const QiXinShiJinDanXiangJiConfig& obj) const

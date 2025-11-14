@@ -75,6 +75,9 @@ public:
 public:
 	void build_zmotion();
 	void destroy_zmotion();
+public:
+	void build_imageSaveEngine();
+	void destroy_imageSaveEngine();
 public slots:
 private slots:
 	void updateCameraLabelState(int cameraIndex, bool state);
@@ -92,6 +95,7 @@ private slots:
 	void pbtn_limit_clicked();
 	void rbtn_debug_checked(bool checked);
 	void rbtn_removeFunc_checked(bool checked);
+	void rbtn_saveImg_checked(bool checked);
 	void ckb_shibiekuang_checked(bool checked);
 	void ckb_wenzi_checked(bool checked);
 	void pbtn_resetProduct_clicked();

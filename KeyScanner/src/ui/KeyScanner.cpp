@@ -64,6 +64,8 @@ void KeyScanner::build_connect()
 		this, &KeyScanner::rbtn_debug_checked);
 	QObject::connect(ui->rbtn_removeFunc, &QRadioButton::clicked,
 		this, &KeyScanner::rbtn_removeFunc_checked);
+	QObject::connect(ui->rbtn_saveImg, &QRadioButton::clicked,
+		this, &KeyScanner::rbtn_saveImg_checked);
 	QObject::connect(ui->ckb_shibiekuang, &QCheckBox::clicked,
 		this, &KeyScanner::ckb_shibiekuang_checked);
 	QObject::connect(ui->ckb_wenzi, &QCheckBox::clicked,
@@ -79,7 +81,6 @@ void KeyScanner::build_KeyScannerData()
 {
 	auto& globalStruct = GlobalData::getInstance();
 	auto& qiXinShiJinDanXiangJiConfig = globalStruct.qiXinShiJinDanXiangJiConfig;
-	auto& setConfig = globalStruct.setConfig;
 	qiXinShiJinDanXiangJiConfig.isDebug = false;
 	qiXinShiJinDanXiangJiConfig.isDefect = true;		// 默认开启剔废
 	qiXinShiJinDanXiangJiConfig.isshibiekuang = true;
@@ -91,6 +92,7 @@ void KeyScanner::build_KeyScannerData()
 	rbtn_removeFunc_checked(qiXinShiJinDanXiangJiConfig.isDefect);
 	ui->ckb_shibiekuang->setChecked(qiXinShiJinDanXiangJiConfig.isshibiekuang);
 	ui->ckb_wenzi->setChecked(qiXinShiJinDanXiangJiConfig.iswenzi);
+	ui->rbtn_saveImg->setChecked(qiXinShiJinDanXiangJiConfig.isSaveImg);
 	ini_clickableTitle();
 }
 
@@ -229,6 +231,8 @@ void KeyScanner::initializeComponents()
 
 	start_Threads();
 
+	build_imageSaveEngine();
+
 #ifdef BUILD_WITHOUT_HARDWARE
 	auto& globalThread = GlobalThread::getInstance();
 	_testIfPushImg = new QCheckBox(this);
@@ -262,6 +266,8 @@ void KeyScanner::destroyComponents()
 	globalThread.testImgPushThread->stopThread();
 	globalThread.testImgPushThread.reset();
 #endif
+
+	destroy_imageSaveEngine();
 
 	stop_Threads();
 
@@ -405,6 +411,18 @@ void KeyScanner::destroy_zmotion()
 {
 	auto& globalThread = GlobalThread::getInstance();
 	globalThread.Destroy_ZMotion();
+}
+
+void KeyScanner::build_imageSaveEngine()
+{
+	auto& globalThread = GlobalThread::getInstance();
+	globalThread.build_ImageSaveEngine();
+}
+
+void KeyScanner::destroy_imageSaveEngine()
+{
+	auto& globalThread = GlobalThread::getInstance();
+	globalThread.destroy_ImageSaveEngine();
 }
 
 void KeyScanner::updateCameraLabelState(int cameraIndex, bool state)
@@ -554,6 +572,12 @@ void KeyScanner::rbtn_removeFunc_checked(bool checked)
 	}
 }
 
+void KeyScanner::rbtn_saveImg_checked(bool checked)
+{
+	auto& globalData = GlobalData::getInstance();
+	globalData.qiXinShiJinDanXiangJiConfig.isSaveImg = ui->rbtn_saveImg->isChecked();
+}
+
 void KeyScanner::ckb_shibiekuang_checked(bool checked)
 {
 	auto& globalData = GlobalData::getInstance();
@@ -608,6 +632,7 @@ bool KeyScanner::check()
 	EnsureDirectoryExists(globalPath.projectHome);
 	EnsureDirectoryExists(globalPath.configRootPath);
 	EnsureDirectoryExists(globalPath.modelRootPath);
+	EnsureDirectoryExists(globalPath.imageSaveRootPath);
 #pragma endregion
 
 #pragma region check model exist
@@ -623,6 +648,7 @@ bool KeyScanner::check()
 
 	checkFileExistAndFormat<cdm::QiXinShiJinDanXiangJiConfig>(globalPath.qiXinShiJinDanXiangJiConfigPath, storageContext);
 	checkFileExistAndFormat<cdm::SetConfig>(globalPath.setConfigPath, storageContext);
+	checkFileExistAndFormat<cdm::LimitConfig>(globalPath.limitConfigPath, storageContext);
 #pragma endregion
 
 	return true;

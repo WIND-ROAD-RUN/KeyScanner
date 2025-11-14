@@ -74,6 +74,11 @@ public:
 
 	bool build_ZMotion();
 	void Destroy_ZMotion();
+public:
+	// 图像保存引擎
+	std::unique_ptr<rw::rqw::ImageSaveEngine> imageSaveEngine{ nullptr };
+	void build_ImageSaveEngine();
+	void destroy_ImageSaveEngine();
 signals:
 	// 更新UI
 	void emit_updateUiLabels(int index, bool isConnected);

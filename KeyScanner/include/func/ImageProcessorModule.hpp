@@ -13,6 +13,7 @@
 #include <imgPro_ImageProcess.hpp>
 
 #include "rqw_CameraObjectCore.hpp"
+#include "rqw_ImageSaveEngine.h"
 
 struct KeyLinePixelCountResult {
 	int leftBladeCount = 0;
@@ -62,6 +63,12 @@ private:
 	void run_OpenRemoveFunc(MatInfo& frame);	// 开启剔废功能时的处理模式
 
 	void run_OpenRemoveFunc_emitErrorInfo(bool isbad) const;
+
+private:
+	// 存图
+	void save_image(rw::rqw::ImageInfo& imageInfo, const QImage& image);
+	void save_image_work(rw::rqw::ImageInfo& imageInfo, const QImage& image);
+
 signals:
 	void imageReady(QPixmap image);
 	void imageNGReady(QPixmap image, size_t index, bool isbad);

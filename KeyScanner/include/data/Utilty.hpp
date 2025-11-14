@@ -8,6 +8,8 @@ public:
 public:
 	QString configRootPath = projectHome + R"(config\)";
 	QString modelRootPath = projectHome + R"(model\)";
+	QString imageSaveRootPath = projectHome + R"(savedImages\)";
+
 	QString qiXinShiJinDanXiangJiConfigPath = configRootPath + R"(KeyScannerConfig.xml)";
 	QString setConfigPath = configRootPath + R"(SetConfig.xml)";
 	QString limitConfigPath = configRootPath + R"(LimitConfig.xml)";

@@ -264,6 +264,10 @@ void ImageProcessor::run_debug(MatInfo& frame)
 	drawKeyRange(maskImg, frame.image);
 
 	emit imageReady(QPixmap::fromImage(maskImg));
+
+	rw::rqw::ImageInfo imageInfo(maskImg);
+
+	save_image(imageInfo, rw::rqw::cvMatToQImage(frame.image));
 }
 
 void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
@@ -327,6 +331,20 @@ void ImageProcessor::run_OpenRemoveFunc_emitErrorInfo(bool isbad) const
 	{
 		globalThread.priorityQueue->push(true);
 	}
+}
+
+void ImageProcessor::save_image(rw::rqw::ImageInfo& imageInfo, const QImage& image)
+{
+	save_image_work(imageInfo, image);
+}
+
+void ImageProcessor::save_image_work(rw::rqw::ImageInfo& imageInfo, const QImage& image)
+{
+	auto& imageSaveEngine = GlobalThread::getInstance().imageSaveEngine;
+
+	rw::rqw::ImageInfo Ok(image);
+	Ok.classify = "OK";
+	imageSaveEngine->pushImage(Ok);
 }
 
 void ImageProcessor::buildSEGModelEngine(const QString& enginePath)
