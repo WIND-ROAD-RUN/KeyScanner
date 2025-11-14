@@ -225,13 +225,15 @@ void KeyScanner::initializeComponents()
 
 	build_DetachUtiltyThread();
 
+	build_imageSaveEngine();
+
 	build_CameraAndBoardReconnectThread();
 
 	build_connect();
 
 	start_Threads();
 
-	build_imageSaveEngine();
+	
 
 #ifdef BUILD_WITHOUT_HARDWARE
 	auto& globalThread = GlobalThread::getInstance();
@@ -267,13 +269,15 @@ void KeyScanner::destroyComponents()
 	globalThread.testImgPushThread.reset();
 #endif
 
-	destroy_imageSaveEngine();
+	
 
 	stop_Threads();
 
 	destroy_CameraAndBoardReconnectThread();
 
 	destroy_DetachUtiltyThread();
+
+	destroy_imageSaveEngine();
 
 	destroy_DetachDefectThread();
 
@@ -536,7 +540,7 @@ void KeyScanner::rbtn_debug_checked(bool checked)
 			if (globalThread.camera1)
 			{
 				globalThread.camera1->setTriggerState(false);
-				globalThread.camera1->setFrameRate(5);
+				globalThread.camera1->setFrameRate(3);
 			}
 		}
 		else {
@@ -575,7 +579,7 @@ void KeyScanner::rbtn_removeFunc_checked(bool checked)
 void KeyScanner::rbtn_saveImg_checked(bool checked)
 {
 	auto& globalData = GlobalData::getInstance();
-	globalData.qiXinShiJinDanXiangJiConfig.isSaveImg = ui->rbtn_saveImg->isChecked();
+	globalData.qiXinShiJinDanXiangJiConfig.isSaveImg = checked;
 }
 
 void KeyScanner::ckb_shibiekuang_checked(bool checked)
