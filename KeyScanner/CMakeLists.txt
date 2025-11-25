@@ -10,6 +10,8 @@ set(CMAKE_AUTORCC ON)
 
 find_package(Qt6 REQUIRED COMPONENTS Core Widgets Concurrent)
 
+find_package(libmodbus CONFIG REQUIRED)
+
 file(GLOB UI_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ui/*.ui")
 qt_wrap_ui(GENERATED_UI_HEADERS ${UI_FILES})
 
@@ -70,6 +72,7 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE rqwime
 	PRIVATE imgPro
 	PRIVATE rqwscc
+	PRIVATE modbus
 )
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
