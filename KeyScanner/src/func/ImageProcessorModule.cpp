@@ -267,7 +267,7 @@ void ImageProcessor::run_debug(MatInfo& frame)
 
 	rw::rqw::ImageInfo imageInfo(maskImg);
 
-	save_image(imageInfo, rw::rqw::cvMatToQImage(frame.image));
+	save_image(imageInfo, maskImg);
 }
 
 void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
@@ -341,10 +341,13 @@ void ImageProcessor::save_image(rw::rqw::ImageInfo& imageInfo, const QImage& ima
 void ImageProcessor::save_image_work(rw::rqw::ImageInfo& imageInfo, const QImage& image)
 {
 	auto& imageSaveEngine = GlobalThread::getInstance().imageSaveEngine;
-
-	rw::rqw::ImageInfo Ok(image);
-	Ok.classify = "OK";
-	imageSaveEngine->pushImage(Ok);
+	auto& config = GlobalData::getInstance().qiXinShiJinDanXiangJiConfig;
+	if (config.isSaveImg)
+	{
+		rw::rqw::ImageInfo Ok(image);
+		Ok.classify = "OK";
+		imageSaveEngine->pushImage(Ok);
+	}
 }
 
 void ImageProcessor::buildSEGModelEngine(const QString& enginePath)
