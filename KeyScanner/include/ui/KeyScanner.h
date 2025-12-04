@@ -11,6 +11,7 @@
 #include "oso_StorageContext.hpp"
 #include "rqw_RunEnvCheck.hpp"
 #include "DlgLimit.h"
+#include "PlcController.hpp"
 #include <QSpinBox>
 
 QT_BEGIN_NAMESPACE
@@ -30,7 +31,7 @@ public slots:
 #endif
 
 public:
-	KeyScanner(QWidget *parent = nullptr);
+	KeyScanner(QWidget* parent = nullptr);
 	~KeyScanner();
 public:
 	void build_ui();
@@ -116,8 +117,14 @@ public:
 	DlgCloseForm* _dlgCloseForm = nullptr;
 	DlgLimit* _dlgLimit = nullptr;
 private:
-	Ui::KeyScannerClass *ui;
+	Ui::KeyScannerClass* ui;
 	int minimizeCount{ 3 };
+
+
+	// PLC通讯
+	PlcController plcController;
+	void build_PlcController();
+	void destroy_PlcController();
 };
 
 template <class TypeCanToAssembly>

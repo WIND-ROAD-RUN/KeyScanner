@@ -219,6 +219,8 @@ void KeyScanner::initializeComponents()
 
 	build_zmotion();
 
+	build_PlcController();
+
 	build_PriorityQueue();
 
 	build_DetachDefectThread();
@@ -284,6 +286,8 @@ void KeyScanner::destroyComponents()
 	destroy_PriorityQueue();
 
 	destroy_ImageProcessingModule();
+
+	destroy_PlcController();
 
 	destroy_zmotion();
 
@@ -665,4 +669,14 @@ bool KeyScanner::EnsureDirectoryExists(const QString& dirPath)
 		return dir.mkpath(".");
 	}
 	return true;
+}
+
+void KeyScanner::build_PlcController()
+{
+	plcController.build_plcController();
+}
+
+void KeyScanner::destroy_PlcController()
+{
+	plcController.destroy_plcController();
 }
