@@ -33,7 +33,7 @@ public:
 	void stopThread();
 
 signals:
-	void imgReady1(rw::rqw::MatInfo matInfo, size_t index);
+	void imgReady(rw::rqw::MatInfo matInfo, size_t index);
 public:
 	void readImg(size_t s);
 protected:

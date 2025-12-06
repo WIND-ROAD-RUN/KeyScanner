@@ -255,7 +255,7 @@ void KeyScanner::initializeComponents()
 
 
 	globalThread.testImgPushThread = std::make_unique<TestImgPushThread>(this);
-	QObject::connect(globalThread.testImgPushThread.get(), &TestImgPushThread::imgReady1,
+	QObject::connect(globalThread.testImgPushThread.get(), &TestImgPushThread::imgReady,
 		globalThread.modelCamera1.get(), &ImageProcessingModule::onFrameCaptured);
 
 	globalThread.testImgPushThread->startThread();
