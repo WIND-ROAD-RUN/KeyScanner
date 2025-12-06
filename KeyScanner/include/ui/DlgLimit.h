@@ -22,14 +22,23 @@ public:
 private slots:
 	void btn_close_clicked();
 
-	void btn_waichi1xiaxian_clicked();
-	void btn_waichi2xiaxian_clicked();
-	void btn_waichi3xiaxian_clicked();
-	void btn_waichi4xiaxian_clicked();
-	void btn_waichi1shangxian_clicked();
-	void btn_waichi2shangxian_clicked();
-	void btn_waichi3shangxian_clicked();
-	void btn_waichi4shangxian_clicked();
+	void btn_neichi1zuoxiaxian_clicked();
+	void btn_neichi2zuoxiaxian_clicked();
+	void btn_neichi3zuoxiaxian_clicked();
+	void btn_neichi4zuoxiaxian_clicked();
+	void btn_neichi1zuoshangxian_clicked();
+	void btn_neichi2zuoshangxian_clicked();
+	void btn_neichi3zuoshangxian_clicked();
+	void btn_neichi4zuoshangxian_clicked();
+
+	void btn_neichi1youxiaxian_clicked();
+	void btn_neichi2youxiaxian_clicked();
+	void btn_neichi3youxiaxian_clicked();
+	void btn_neichi4youxiaxian_clicked();
+	void btn_neichi1youshangxian_clicked();
+	void btn_neichi2youshangxian_clicked();
+	void btn_neichi3youshangxian_clicked();
+	void btn_neichi4youshangxian_clicked();
 
 private:
 	Ui::DlgLimitClass *ui;

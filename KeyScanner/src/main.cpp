@@ -5,12 +5,13 @@
 int main(int argc, char* argv[])
 {
     QApplication a(argc, argv);
-    KeyScanner w;
 
 	if (!KeyScanner::check())
 	{
 		return 1;
 	}
+
+    KeyScanner w;
 
 #ifdef NDEBUG
 	w.showFullScreen();

@@ -4,13 +4,22 @@ namespace cdm {
 	class LimitConfig
 	{
 	public:
-		waichi1xiaxian : double : default = 0.0;
-		waichi2xiaxian : double : default = 0.0;
-		waichi3xiaxian : double : default = 0.0;
-		waichi4xiaxian : double : default = 0.0;
-		waichi1shangxian : double : default = 0.0;
-		waichi2shangxian : double : default = 0.0;
-		waichi3shangxian : double : default = 0.0;
-		waichi4shangxian : double : default = 0.0;
+		neichi1zuoxiaxian : int : default = 0;
+		neichi2zuoxiaxian : int : default = 0;
+		neichi3zuoxiaxian : int : default = 0;
+		neichi4zuoxiaxian : int : default = 0;
+		neichi1zuoshangxian : int : default = 0;
+		neichi2zuoshangxian : int : default = 0;
+		neichi3zuoshangxian : int : default = 0;
+		neichi4zuoshangxian : int : default = 0;
+
+		neichi1youxiaxian : int : default = 0;
+		neichi2youxiaxian : int : default = 0;
+		neichi3youxiaxian : int : default = 0;
+		neichi4youxiaxian : int : default = 0;
+		neichi1youshangxian : int : default = 0;
+		neichi2youshangxian : int : default = 0;
+		neichi3youshangxian : int : default = 0;
+		neichi4youshangxian : int : default = 0;
 	};
 }
