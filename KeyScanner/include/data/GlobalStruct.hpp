@@ -16,6 +16,7 @@
 #include "LimitConfig.hpp"
 #include "TestImgPushThread.hpp"
 #include "PlcController.hpp"
+#include "DetachCheckPlcController.h"
 
 
 enum class RunningState
@@ -85,9 +86,16 @@ public:
 	PlcController plcController;
 	void build_PlcController();
 	void destroy_PlcController();
+public:
+	// 监听PLC线程
+	DetachCheckPlcController* detachCheckPlcController;
+	void build_DetachCheckPlcController();
+	void destroy_DetachCheckPlcController();
 signals:
 	// 更新UI
 	void emit_updateUiLabels(int index, bool isConnected);
+	// 收到PLC信号
+	void emit_getSignal();
 public slots:
 	// 相机重连
 	void rebuild_Camera1();

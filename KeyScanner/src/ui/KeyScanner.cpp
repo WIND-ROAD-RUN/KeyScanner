@@ -194,11 +194,15 @@ void KeyScanner::start_Threads()
 	globalThread.cameraAndCardStateThread->startThread();
 	// 启动异步统计线程
 	globalThread.detachUtiltyThread->startThread();
+	// 启动PLC检测线程
+	globalThread.detachCheckPlcController->startThread();
 }
 
 void KeyScanner::stop_Threads()
 {
 	auto& globalThread = GlobalThread::getInstance();
+
+	globalThread.detachCheckPlcController->stopThread();
 
 	globalThread.detachDefectThread->stopThread();
 
@@ -226,6 +230,8 @@ void KeyScanner::initializeComponents()
 	build_DetachDefectThread();
 
 	build_DetachUtiltyThread();
+
+	build_DetachCheckPlcController();
 
 	build_imageSaveEngine();
 
@@ -280,6 +286,8 @@ void KeyScanner::destroyComponents()
 	destroy_DetachUtiltyThread();
 
 	destroy_imageSaveEngine();
+
+	destroy_DetachCheckPlcController();
 
 	destroy_DetachDefectThread();
 
@@ -344,6 +352,7 @@ void KeyScanner::build_ImageProcessingModule()
 	QObject::connect(this, &KeyScanner::shibiekuangChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::shibiekuangChanged);
 	QObject::connect(this, &KeyScanner::wenziChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::wenziChanged);
 	QObject::connect(_dlgProductSet, &DlgProductSet::paramsChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::paramMapsChanged);
+	QObject::connect(&globalThread, &GlobalThread::emit_getSignal, globalThread.modelCamera1.get(), &ImageProcessingModule::getPlcSignal);
 }
 
 void KeyScanner::destroy_ImageProcessingModule()
@@ -679,4 +688,14 @@ void KeyScanner::build_PlcController()
 void KeyScanner::destroy_PlcController()
 {
 	GlobalThread::getInstance().destroy_PlcController();
+}
+
+void KeyScanner::build_DetachCheckPlcController()
+{
+	GlobalThread::getInstance().build_DetachCheckPlcController();
+}
+
+void KeyScanner::destroy_DetachCheckPlcController()
+{
+	GlobalThread::getInstance().destroy_DetachCheckPlcController();
 }

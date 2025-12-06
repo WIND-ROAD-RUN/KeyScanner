@@ -674,6 +674,11 @@ void ImageProcessor::updateParamMapsFromGlobalStruct()
 	iniDefectResultInfoFunc();
 }
 
+void ImageProcessor::getPlcSignal()
+{
+	_canPlcGetMessage = true;
+}
+
 void ImageProcessingModule::BuildModule()
 {
 	for (int i = 0; i < _numConsumers; ++i) {
@@ -688,6 +693,8 @@ void ImageProcessingModule::BuildModule()
 		connect(this, &ImageProcessingModule::shibiekuangChanged, processor, &ImageProcessor::updateDrawRec, Qt::QueuedConnection);
 		connect(this, &ImageProcessingModule::wenziChanged, processor, &ImageProcessor::updateDrawText, Qt::QueuedConnection);
 		connect(this, &ImageProcessingModule::paramMapsChanged, processor, &ImageProcessor::updateParamMapsFromGlobalStruct, Qt::QueuedConnection);
+		connect(this, &ImageProcessingModule::getPlcSignal, processor, &ImageProcessor::getPlcSignal, Qt::QueuedConnection);
+
 		_processors.push_back(processor);
 		processor->start();
 	}

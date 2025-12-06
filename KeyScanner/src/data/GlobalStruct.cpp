@@ -268,6 +268,23 @@ void GlobalThread::destroy_PlcController()
 	plcController.destroy_plcController();
 }
 
+void GlobalThread::build_DetachCheckPlcController()
+{
+	detachCheckPlcController = new DetachCheckPlcController(this);
+
+	QObject::connect(detachCheckPlcController, &DetachCheckPlcController::getSignal,
+		this, &GlobalThread::emit_getSignal);
+}
+
+void GlobalThread::destroy_DetachCheckPlcController()
+{
+	if (detachCheckPlcController)
+	{
+		delete detachCheckPlcController;
+		detachCheckPlcController = nullptr;
+	}
+}
+
 void GlobalThread::rebuild_Camera1()
 {
 	buildCamera1();

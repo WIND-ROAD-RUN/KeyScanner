@@ -79,6 +79,13 @@ public:
 public:
 	void build_imageSaveEngine();
 	void destroy_imageSaveEngine();
+public:
+	void build_PlcController();
+	void destroy_PlcController();
+public:
+	void build_DetachCheckPlcController();
+	void destroy_DetachCheckPlcController();
+
 private slots:
 	void updateCameraLabelState(int cameraIndex, bool state);
 
@@ -118,12 +125,6 @@ public:
 private:
 	Ui::KeyScannerClass* ui;
 	int minimizeCount{ 3 };
-
-
-	// PLC通讯
-	PlcController plcController;
-	void build_PlcController();
-	void destroy_PlcController();
 };
 
 template <class TypeCanToAssembly>

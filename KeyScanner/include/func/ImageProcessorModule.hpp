@@ -101,9 +101,13 @@ public slots:
 	void updateDrawRec();
 	void updateDrawText();
 	void updateParamMapsFromGlobalStruct();
+
+	// 收到PLC信号
+	void getPlcSignal();
 public:
 	bool _isbad{ false };
 
+	bool _canPlcGetMessage{ false };
 private:
 	std::map<std::string, double> BodyMap{};
 	std::map<std::string, double> ChiMap{};
@@ -144,6 +148,8 @@ signals:
 	void wenziChanged();
 	void paramMapsChanged();
 
+	// 收到PLC信号
+	void getPlcSignal();
 public:
 	std::vector<ImageProcessor*> getProcessors() const {
 		return _processors;
