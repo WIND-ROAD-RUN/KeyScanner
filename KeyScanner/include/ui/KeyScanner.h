@@ -79,7 +79,6 @@ public:
 public:
 	void build_imageSaveEngine();
 	void destroy_imageSaveEngine();
-public slots:
 private slots:
 	void updateCameraLabelState(int cameraIndex, bool state);
 

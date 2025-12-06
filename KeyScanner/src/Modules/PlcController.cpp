@@ -20,7 +20,10 @@ void PlcController::build_plcController()
 	{
 		plcControllerScheduler = std::make_shared<rw::hoem::ModbusDeviceScheduler>(plcController);
 
-		while (true)
+		std::cout << "PLC connected successfully." << std::endl;
+
+
+		/*while (true)
 		{
 			auto isSuccess = plcControllerScheduler->readRegister32Async(700,
 				 rw::hoem::Endianness::LittleEndian,
@@ -36,7 +39,7 @@ void PlcController::build_plcController()
 				auto result = plcController->reconnect();
 				std::cout << "PLC：" << result << std::endl;
 			}
-		}
+		}*/
 	}
 
 	/*bool isConnect = plcController->connect();

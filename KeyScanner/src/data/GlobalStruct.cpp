@@ -258,6 +258,16 @@ void GlobalThread::destroy_ImageSaveEngine()
 	}
 }
 
+void GlobalThread::build_PlcController()
+{
+	plcController.build_plcController();
+}
+
+void GlobalThread::destroy_PlcController()
+{
+	plcController.destroy_plcController();
+}
+
 void GlobalThread::rebuild_Camera1()
 {
 	buildCamera1();

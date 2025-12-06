@@ -13,5 +13,4 @@ public:
 
 	void build_plcController();
 	void destroy_plcController();
-
 };

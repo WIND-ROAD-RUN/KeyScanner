@@ -15,6 +15,7 @@
 #include "rqw_ZMotion.hpp"
 #include "LimitConfig.hpp"
 #include "TestImgPushThread.hpp"
+#include "PlcController.hpp"
 
 
 enum class RunningState
@@ -79,6 +80,11 @@ public:
 	std::unique_ptr<rw::rqw::ImageSaveEngine> imageSaveEngine{ nullptr };
 	void build_ImageSaveEngine();
 	void destroy_ImageSaveEngine();
+public:
+	// PLC模块
+	PlcController plcController;
+	void build_PlcController();
+	void destroy_PlcController();
 signals:
 	// 更新UI
 	void emit_updateUiLabels(int index, bool isConnected);

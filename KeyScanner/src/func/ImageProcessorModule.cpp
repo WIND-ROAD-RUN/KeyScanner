@@ -79,7 +79,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 
 	if (y < blade.roi.height)
 	{
-		for (int x = 0; y>=0&&x < bladeMask.cols; ++x) {
+		for (int x = 0; y >= 0 && x < bladeMask.cols; ++x) {
 			bool inBlade = bladeMask.at<float>(y, x) > 0;
 			if (inBlade) {
 				totalCount++;
@@ -126,7 +126,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 
 	if (y < teeth.roi.height)
 	{
-		for (int x = 0;y >= 0&&x < teethMask.cols; ++x)
+		for (int x = 0; y >= 0 && x < teethMask.cols; ++x)
 		{
 			bool inTeeth = teethMask.at<float>(y, x) > 0;
 
@@ -151,7 +151,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 			teethSegments.push_back({ teethSegmentStart, teethMask.cols - 1 });
 		}
 
-		if (teethSegments.size()==1)
+		if (teethSegments.size() == 1)
 		{
 			middleTeethRange.first = teeth.roi.x + teethSegments.front().first;
 			middleTeethRange.second = teeth.roi.x + teethSegments.front().second;
@@ -175,7 +175,7 @@ KeyLinePixelCountResult countKeyLinePixels(
 		rightBladeRange.second = blade.roi.x + bladeSegments[1].second;
 		result.leftBladeRange = leftBladeRange;
 		result.rightBladeRange = rightBladeRange;
-		
+
 	}
 	else if (bladeSegmentLengths.size() == 1)
 	{
@@ -261,7 +261,11 @@ void ImageProcessor::run_debug(MatInfo& frame)
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
 
-	drawKeyRange(maskImg, frame.image);
+	// 初始化 keyRange
+	leftKeyRange.clear();
+	rightKeyRange.clear();
+
+	drawKeyRange(maskImg, frame.image, leftKeyRange, rightKeyRange);
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 
@@ -273,34 +277,9 @@ void ImageProcessor::run_debug(MatInfo& frame)
 void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 {
 	auto& imgPro = *_imgProcess;
-	auto& qiXinShiJinConfig = GlobalData::getInstance().qiXinShiJinDanXiangJiConfig;
-	double R1 = 0;
-	double C1 = 0;
-	double length = 0;
-	double width = 0;
-	double angle = 0;
-
-	QFuture<bool> positiveIsBadFuture;
-
-	positiveIsBadFuture = QtConcurrent::run(
-		[this, &positiveIsBadFuture, &frame, &R1, &C1, &length, &width, &angle]() 
-		{
-
-		bool isBad = false;
-
-		return isBad;
-		});
-
 	imgPro(frame.image);
-	bool positiveIsBad{ false };
-
-	positiveIsBadFuture.waitForFinished();
-	positiveIsBad = positiveIsBadFuture.result();
-
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
-
-	auto& context = _imgProcess->context();
 
 	if (defectResult.isBad)
 	{
@@ -443,7 +422,7 @@ void ImageProcessor::iniRunTextConfig()
 	updateDrawText();
 }
 
-void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
+void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<int>& leftKeyRange, std::vector<int>& rightKeyRange)
 {
 	auto& imgPro = *_imgProcess;
 	auto& setConfig = GlobalData::getInstance().setConfig;
@@ -473,12 +452,12 @@ void ImageProcessor::drawKeyRange(QImage& maskImg,const cv::Mat& rowImage)
 
 	auto processResult = imgPro.getProcessResult();
 
-	drawLeftKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex);
-	drawRightKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex);
+	drawLeftKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex, leftKeyRange);
+	drawRightKeyRange(maskImg, rowImage, processResult, bodyIndex, chiIndex, rightKeyRange);
 }
 
-void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
-	const int& chiIndex)
+void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
+                                      const int& chiIndex, std::vector<int>& leftKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -509,21 +488,22 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,c
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Left;
 			cfg.startPoint = { result.leftBladeRange.first, loc };
 			cfg.endPoint = { result.leftBladeRange.second, loc };
-			double dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
-			if (0 != dis)
+			double dis = rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld;
+			if (0.0 != dis)
 			{
-				cfg.text = QString::number(dis, 'f', 2);
+				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+				leftKeyRange.push_back(static_cast<int>(dis * 10));
 			}
 
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.leftEmptyRange.first, loc };
 			cfg.endPoint = { result.leftEmptyRange.second, loc };
-			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
-			if (0 != dis)
+			dis = rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld;
+			if (0.0 != dis)
 			{
-				cfg.text = QString::number(dis, 'f', 2);
+				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Orange;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -540,7 +520,8 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,c
 }
 
 void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
-	const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex)
+                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<int>&
+                                       rightKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -572,10 +553,10 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.RightEmptyRange.first, loc };
 			cfg.endPoint = { result.RightEmptyRange.second, loc };
-			double dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
-			if (0 != dis)
+			double dis = rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld;
+			if (0.0 != dis)
 			{
-				cfg.text = QString::number(dis, 'f', 2);
+				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Orange;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 			}
@@ -583,12 +564,13 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.rightBladeRange.first, loc };
 			cfg.endPoint = { result.rightBladeRange.second, loc };
-			dis = static_cast<double>(rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld);
-			if (0 != dis)
+			dis = rw::imgPro::pointDistance(cfg.startPoint, cfg.endPoint) * pixToWorld;
+			if (0.0 != dis)
 			{
-				cfg.text = QString::number(dis, 'f', 2);
+				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
+				rightKeyRange.push_back(static_cast<int>(dis * 10));
 			}
 		}
 		else
@@ -600,6 +582,11 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 			rw::imgPro::ImagePainter::drawHorizontalLine(maskImg, configDrawLine);
 		}
 	}
+}
+
+void ImageProcessor::sendKeyRange()
+{
+
 }
 
 void ImageProcessor::updateDrawRec()

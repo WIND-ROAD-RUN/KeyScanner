@@ -89,10 +89,14 @@ public:
 
 
 public:
-	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage);
+	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<int>& leftKeyRange, std::vector<int>& rightKeyRange);
 
-	void drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage,const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex);
-	void drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex);
+	void drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
+	                      ::vector<int>& leftKeyRange);
+	void drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
+	                       ::vector<int>& rightKeyRange);
+
+	void sendKeyRange();
 public slots:
 	void updateDrawRec();
 	void updateDrawText();
@@ -104,6 +108,8 @@ private:
 	std::map<std::string, double> BodyMap{};
 	std::map<std::string, double> ChiMap{};
 
+	std::vector<int> leftKeyRange{};
+	std::vector<int> rightKeyRange{};
 private:
 	QQueue<MatInfo>& _queue;
 	QMutex& _mutex;

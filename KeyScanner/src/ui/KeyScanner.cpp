@@ -673,10 +673,10 @@ bool KeyScanner::EnsureDirectoryExists(const QString& dirPath)
 
 void KeyScanner::build_PlcController()
 {
-	plcController.build_plcController();
+	GlobalThread::getInstance().build_PlcController();
 }
 
 void KeyScanner::destroy_PlcController()
 {
-	plcController.destroy_plcController();
+	GlobalThread::getInstance().destroy_PlcController();
 }
