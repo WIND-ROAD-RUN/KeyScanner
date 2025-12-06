@@ -18,6 +18,8 @@ protected:
 	void run() override;
 private:
 	void listen();
+
+	void checkCoil();
 signals:
 	void getSignal();
 private:

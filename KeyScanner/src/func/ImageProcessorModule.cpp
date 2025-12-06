@@ -267,6 +267,14 @@ void ImageProcessor::run_debug(MatInfo& frame)
 
 	drawKeyRange(maskImg, frame.image, leftKeyRange, rightKeyRange);
 
+	processKeyRange();
+
+	if (_canPlcGetMessage)
+	{
+		sendKeyRange();
+		_canPlcGetMessage = false;
+	}
+
 	emit imageReady(QPixmap::fromImage(maskImg));
 
 	rw::rqw::ImageInfo imageInfo(maskImg);
@@ -422,7 +430,8 @@ void ImageProcessor::iniRunTextConfig()
 	updateDrawText();
 }
 
-void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<int>& leftKeyRange, std::vector<int>& rightKeyRange)
+void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt32>& leftKeyRange, std::vector<rw::hoem::UInt32>&
+	rightKeyRange)
 {
 	auto& imgPro = *_imgProcess;
 	auto& setConfig = GlobalData::getInstance().setConfig;
@@ -457,7 +466,7 @@ void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std:
 }
 
 void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
-                                      const int& chiIndex, std::vector<int>& leftKeyRange)
+	const int& chiIndex, std::vector<rw::hoem::UInt32>& leftKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -494,7 +503,7 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-				leftKeyRange.push_back(static_cast<int>(dis * 10));
+				leftKeyRange.push_back(static_cast<rw::hoem::UInt32>(dis * 10));
 			}
 
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
@@ -520,8 +529,8 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 }
 
 void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
-                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<int>&
-                                       rightKeyRange)
+	const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt32
+	>& rightKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -570,7 +579,7 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 				cfg.text = QString::number(dis * 10);
 				cfg.color = rw::imgPro::Color::Blue;
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
-				rightKeyRange.push_back(static_cast<int>(dis * 10));
+				rightKeyRange.push_back(static_cast<rw::hoem::UInt32>(dis * 10));
 			}
 		}
 		else
@@ -584,9 +593,72 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 	}
 }
 
+void ImageProcessor::processKeyRange()
+{
+	auto& limitConfig = GlobalData::getInstance().limitConfig;
+
+	// 处理左侧 keyRange
+	processKeyRangeSide(leftKeyRange,
+		limitConfig.neichi1zuoxiaxian, limitConfig.neichi1zuoshangxian,
+		limitConfig.neichi2zuoxiaxian, limitConfig.neichi2zuoshangxian,
+		limitConfig.neichi3zuoxiaxian, limitConfig.neichi3zuoshangxian,
+		limitConfig.neichi4zuoxiaxian, limitConfig.neichi4zuoshangxian);
+
+	// 处理右侧 keyRange
+	processKeyRangeSide(rightKeyRange,
+		limitConfig.neichi1youxiaxian, limitConfig.neichi1youshangxian,
+		limitConfig.neichi2youxiaxian, limitConfig.neichi2youshangxian,
+		limitConfig.neichi3youxiaxian, limitConfig.neichi3youshangxian,
+		limitConfig.neichi4youxiaxian, limitConfig.neichi4youshangxian);
+}
+
+void ImageProcessor::processKeyRangeSide(std::vector<rw::hoem::UInt32>& keyRange, int neichi1Lower, int neichi1Upper,
+	int neichi2Lower, int neichi2Upper, int neichi3Lower, int neichi3Upper, int neichi4Lower, int neichi4Upper)
+{
+	for (auto& value : keyRange)
+	{
+		if (value >= neichi1Lower && value <= neichi1Upper)
+		{
+			value = 1;
+		}
+		else if (value >= neichi2Lower && value <= neichi2Upper)
+		{
+			value = 2;
+		}
+		else if (value >= neichi3Lower && value <= neichi3Upper)
+		{
+			value = 3;
+		}
+		else if (value >= neichi4Lower && value <= neichi4Upper)
+		{
+			value = 4;
+		}
+		else
+		{
+			value = 0; // 异常值
+		}
+	}
+}
+
 void ImageProcessor::sendKeyRange()
 {
+	auto plcControllerScheduler = GlobalThread::getInstance().plcController.plcControllerScheduler;
+	if (!plcControllerScheduler)
+	{
+		return;
+	}
 
+	auto isLeftSuccess = plcControllerScheduler->writeRegisters32Async(700, leftKeyRange, rw::hoem::Endianness::LittleEndian, 2, std::chrono::milliseconds(1000));
+	auto isRightSuccess = plcControllerScheduler->writeRegisters32Async(720, rightKeyRange, rw::hoem::Endianness::LittleEndian, 2, std::chrono::milliseconds(1000));
+
+	if (isLeftSuccess.get() && isRightSuccess.get())
+	{
+		qDebug() << "PLC写入左右键槽成功";
+	}
+	else
+	{
+		qDebug() << "PLC写入左右键槽失败";
+	}
 }
 
 void ImageProcessor::updateDrawRec()
