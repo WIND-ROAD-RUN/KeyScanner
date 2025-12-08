@@ -4,19 +4,19 @@
 #include <string>
 
 namespace cdm {
-    class QiXinShiJinDanXiangJiConfig
+    class KeyScannerConfig
     {
     public:
-        QiXinShiJinDanXiangJiConfig() = default;
-        ~QiXinShiJinDanXiangJiConfig() = default;
+        KeyScannerConfig() = default;
+        ~KeyScannerConfig() = default;
 
-        QiXinShiJinDanXiangJiConfig(const rw::oso::ObjectStoreAssembly& assembly);
-        QiXinShiJinDanXiangJiConfig(const QiXinShiJinDanXiangJiConfig& obj);
+        KeyScannerConfig(const rw::oso::ObjectStoreAssembly& assembly);
+        KeyScannerConfig(const KeyScannerConfig& obj);
 
-        QiXinShiJinDanXiangJiConfig& operator=(const QiXinShiJinDanXiangJiConfig& obj);
+        KeyScannerConfig& operator=(const KeyScannerConfig& obj);
         operator rw::oso::ObjectStoreAssembly() const;
-        bool operator==(const QiXinShiJinDanXiangJiConfig& obj) const;
-        bool operator!=(const QiXinShiJinDanXiangJiConfig& obj) const;
+        bool operator==(const KeyScannerConfig& obj) const;
+        bool operator!=(const KeyScannerConfig& obj) const;
 
     public:
         int totalProductionVolume{ 0 };
@@ -28,12 +28,12 @@ namespace cdm {
         bool isSaveImg{ false };
     };
 
-    inline QiXinShiJinDanXiangJiConfig::QiXinShiJinDanXiangJiConfig(const rw::oso::ObjectStoreAssembly& assembly)
+    inline KeyScannerConfig::KeyScannerConfig(const rw::oso::ObjectStoreAssembly& assembly)
     {
         auto isAccountAssembly = assembly.getName();
-        if (isAccountAssembly != "$class$QiXinShiJinDanXiangJiConfig$")
+        if (isAccountAssembly != "$class$KeyScannerConfig$")
         {
-            throw std::runtime_error("Assembly is not $class$QiXinShiJinDanXiangJiConfig$");
+            throw std::runtime_error("Assembly is not $class$KeyScannerConfig$");
         }
         auto totalProductionVolumeItem = rw::oso::ObjectStoreCoreToItem(assembly.getItem("$variable$totalProductionVolume$"));
         if (!totalProductionVolumeItem) {
@@ -72,7 +72,7 @@ namespace cdm {
         isSaveImg = isSaveImgItem->getValueAsBool();
     }
 
-    inline QiXinShiJinDanXiangJiConfig::QiXinShiJinDanXiangJiConfig(const QiXinShiJinDanXiangJiConfig& obj)
+    inline KeyScannerConfig::KeyScannerConfig(const KeyScannerConfig& obj)
     {
         totalProductionVolume = obj.totalProductionVolume;
         totalDefectiveVolume = obj.totalDefectiveVolume;
@@ -83,7 +83,7 @@ namespace cdm {
         isSaveImg = obj.isSaveImg;
     }
 
-    inline QiXinShiJinDanXiangJiConfig& QiXinShiJinDanXiangJiConfig::operator=(const QiXinShiJinDanXiangJiConfig& obj)
+    inline KeyScannerConfig& KeyScannerConfig::operator=(const KeyScannerConfig& obj)
     {
         if (this != &obj) {
             totalProductionVolume = obj.totalProductionVolume;
@@ -97,10 +97,10 @@ namespace cdm {
         return *this;
     }
 
-    inline QiXinShiJinDanXiangJiConfig::operator rw::oso::ObjectStoreAssembly() const
+    inline KeyScannerConfig::operator rw::oso::ObjectStoreAssembly() const
     {
         rw::oso::ObjectStoreAssembly assembly;
-        assembly.setName("$class$QiXinShiJinDanXiangJiConfig$");
+        assembly.setName("$class$KeyScannerConfig$");
         auto totalProductionVolumeItem = std::make_shared<rw::oso::ObjectStoreItem>();
         totalProductionVolumeItem->setName("$variable$totalProductionVolume$");
         totalProductionVolumeItem->setValueFromInt(totalProductionVolume);
@@ -132,12 +132,12 @@ namespace cdm {
         return assembly;
     }
 
-    inline bool QiXinShiJinDanXiangJiConfig::operator==(const QiXinShiJinDanXiangJiConfig& obj) const
+    inline bool KeyScannerConfig::operator==(const KeyScannerConfig& obj) const
     {
         return totalProductionVolume == obj.totalProductionVolume && totalDefectiveVolume == obj.totalDefectiveVolume && isDebug == obj.isDebug && isDefect == obj.isDefect && isshibiekuang == obj.isshibiekuang && iswenzi == obj.iswenzi && isSaveImg == obj.isSaveImg;
     }
 
-    inline bool QiXinShiJinDanXiangJiConfig::operator!=(const QiXinShiJinDanXiangJiConfig& obj) const
+    inline bool KeyScannerConfig::operator!=(const KeyScannerConfig& obj) const
     {
         return !(*this == obj);
     }

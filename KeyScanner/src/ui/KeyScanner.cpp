@@ -80,7 +80,7 @@ void KeyScanner::build_connect()
 void KeyScanner::build_KeyScannerData()
 {
 	auto& globalStruct = GlobalData::getInstance();
-	auto& qiXinShiJinDanXiangJiConfig = globalStruct.qiXinShiJinDanXiangJiConfig;
+	auto& qiXinShiJinDanXiangJiConfig = globalStruct.keyScannerConfig;
 	qiXinShiJinDanXiangJiConfig.isDebug = false;
 	qiXinShiJinDanXiangJiConfig.isDefect = true;		// 默认开启剔废
 	qiXinShiJinDanXiangJiConfig.isshibiekuang = true;
@@ -137,14 +137,14 @@ void KeyScanner::read_config_KeyScannerConfig()
 	auto& globalFunc = GlobalFuncObject::getInstance();
 	auto& globalData = GlobalData::getInstance();
 
-	globalFunc.storeContext->ensureFileExistsSafe(globalPath.qiXinShiJinDanXiangJiConfigPath.toStdString(), cdm::QiXinShiJinDanXiangJiConfig());
-	auto loadResult = globalFunc.storeContext->loadSafe(globalPath.qiXinShiJinDanXiangJiConfigPath.toStdString());
+	globalFunc.storeContext->ensureFileExistsSafe(globalPath.keyScannerConfigPath.toStdString(), cdm::KeyScannerConfig());
+	auto loadResult = globalFunc.storeContext->loadSafe(globalPath.keyScannerConfigPath.toStdString());
 	if (!loadResult)
 	{
-		globalFunc.storeContext->saveSafe(cdm::QiXinShiJinDanXiangJiConfig(), globalPath.qiXinShiJinDanXiangJiConfigPath.toStdString());
+		globalFunc.storeContext->saveSafe(cdm::KeyScannerConfig(), globalPath.keyScannerConfigPath.toStdString());
 		return;
 	}
-	globalData.qiXinShiJinDanXiangJiConfig = *loadResult;
+	globalData.keyScannerConfig = *loadResult;
 }
 
 void KeyScanner::read_config_DlgProductSetConfig()
@@ -592,13 +592,13 @@ void KeyScanner::rbtn_removeFunc_checked(bool checked)
 void KeyScanner::rbtn_saveImg_checked(bool checked)
 {
 	auto& globalData = GlobalData::getInstance();
-	globalData.qiXinShiJinDanXiangJiConfig.isSaveImg = checked;
+	globalData.keyScannerConfig.isSaveImg = checked;
 }
 
 void KeyScanner::ckb_shibiekuang_checked(bool checked)
 {
 	auto& globalData = GlobalData::getInstance();
-	globalData.qiXinShiJinDanXiangJiConfig.isshibiekuang = ui->ckb_shibiekuang->isChecked();
+	globalData.keyScannerConfig.isshibiekuang = ui->ckb_shibiekuang->isChecked();
 
 	emit shibiekuangChanged();
 }
@@ -606,14 +606,14 @@ void KeyScanner::ckb_shibiekuang_checked(bool checked)
 void KeyScanner::ckb_wenzi_checked(bool checked)
 {
 	auto& globalData = GlobalData::getInstance();
-	globalData.qiXinShiJinDanXiangJiConfig.iswenzi = ui->ckb_wenzi->isChecked();
+	globalData.keyScannerConfig.iswenzi = ui->ckb_wenzi->isChecked();
 
 	emit wenziChanged();
 }
 
 void KeyScanner::pbtn_resetProduct_clicked()
 {
-	auto& qiXinShiJinDanXiangJiConfig = GlobalData::getInstance().qiXinShiJinDanXiangJiConfig;
+	auto& qiXinShiJinDanXiangJiConfig = GlobalData::getInstance().keyScannerConfig;
 
 	qiXinShiJinDanXiangJiConfig.totalProductionVolume = 0;
 	qiXinShiJinDanXiangJiConfig.totalDefectiveVolume = 0;
@@ -663,7 +663,7 @@ bool KeyScanner::check()
 #pragma region check config format and exist
 	rw::oso::StorageContext storageContext(rw::oso::StorageType::Xml);
 
-	checkFileExistAndFormat<cdm::QiXinShiJinDanXiangJiConfig>(globalPath.qiXinShiJinDanXiangJiConfigPath, storageContext);
+	checkFileExistAndFormat<cdm::KeyScannerConfig>(globalPath.keyScannerConfigPath, storageContext);
 	checkFileExistAndFormat<cdm::SetConfig>(globalPath.setConfigPath, storageContext);
 	checkFileExistAndFormat<cdm::LimitConfig>(globalPath.limitConfigPath, storageContext);
 #pragma endregion

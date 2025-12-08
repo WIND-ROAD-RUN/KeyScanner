@@ -328,7 +328,7 @@ void ImageProcessor::save_image(rw::rqw::ImageInfo& imageInfo, const QImage& ima
 void ImageProcessor::save_image_work(rw::rqw::ImageInfo& imageInfo, const QImage& image)
 {
 	auto& imageSaveEngine = GlobalThread::getInstance().imageSaveEngine;
-	auto& config = GlobalData::getInstance().qiXinShiJinDanXiangJiConfig;
+	auto& config = GlobalData::getInstance().keyScannerConfig;
 	if (config.isSaveImg)
 	{
 		rw::rqw::ImageInfo Ok(image);
@@ -666,7 +666,7 @@ void ImageProcessor::updateDrawRec()
 	auto& globalStruct = GlobalData::getInstance();
 	auto& context = _imgProcess->context();
 	context.defectDrawCfg.isDrawMask = true;
-	if (globalStruct.qiXinShiJinDanXiangJiConfig.isshibiekuang)
+	if (globalStruct.keyScannerConfig.isshibiekuang)
 	{
 		context.defectDrawCfg.isDrawDefects = true;
 		context.defectDrawCfg.isDrawDisableDefects = true;
@@ -686,7 +686,7 @@ void ImageProcessor::updateDrawText()
 {
 	auto& globalStruct = GlobalData::getInstance();
 	auto& context = _imgProcess->context();
-	if (globalStruct.qiXinShiJinDanXiangJiConfig.iswenzi)
+	if (globalStruct.keyScannerConfig.iswenzi)
 	{
 		context.runTextCfg.isDrawExtraText = true;
 	}

@@ -164,7 +164,7 @@ public:
 	} statisticalInfo;
 
 public:
-	cdm::QiXinShiJinDanXiangJiConfig qiXinShiJinDanXiangJiConfig;
+	cdm::KeyScannerConfig keyScannerConfig;
 	cdm::SetConfig setConfig;
 	cdm::LimitConfig limitConfig;
 };

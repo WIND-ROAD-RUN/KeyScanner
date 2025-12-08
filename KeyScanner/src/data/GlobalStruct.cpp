@@ -341,8 +341,8 @@ void GlobalFuncObject::buildConfigManager(rw::oso::StorageType type)
 void GlobalFuncObject::saveQiXinShiJinDanXiangJiConfig()
 {
 	auto& globalStruct = GlobalData::getInstance();
-	std::string generalConfigPath = globalPath.qiXinShiJinDanXiangJiConfigPath.toStdString();
-	storeContext->saveSafe(globalStruct.qiXinShiJinDanXiangJiConfig, generalConfigPath);
+	std::string generalConfigPath = globalPath.keyScannerConfigPath.toStdString();
+	storeContext->saveSafe(globalStruct.keyScannerConfig, generalConfigPath);
 }
 
 void GlobalFuncObject::saveSetConfig()
