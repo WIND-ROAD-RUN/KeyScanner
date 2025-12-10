@@ -277,9 +277,9 @@ void ImageProcessor::run_debug(MatInfo& frame)
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 
-	rw::rqw::ImageInfo imageInfo(maskImg);
+	//rw::rqw::ImageInfo imageInfo(maskImg);
 
-	save_image(imageInfo, maskImg);
+	//save_image(imageInfo, maskImg);
 }
 
 void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
@@ -289,14 +289,25 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 	auto maskImg = imgPro.getMaskImg(frame.image);
 	auto defectResult = imgPro.getDefectResultInfo();
 
-	if (defectResult.isBad)
+	// 初始化 keyRange
+	leftKeyRange.clear();
+	rightKeyRange.clear();
+
+	drawKeyRange(maskImg, frame.image, leftKeyRange, rightKeyRange);
+
+	processKeyRange();
+
+	if (_canPlcGetMessage)
 	{
-		_isbad = true;
+		sendKeyRange();
+		_canPlcGetMessage = false;
 	}
 
-	run_OpenRemoveFunc_emitErrorInfo(_isbad);
-
 	emit imageNGReady(QPixmap::fromImage(maskImg), frame.index, defectResult.isBad);
+
+	rw::rqw::ImageInfo imageInfo(maskImg);
+
+	save_image(imageInfo, maskImg);
 }
 
 void ImageProcessor::run_OpenRemoveFunc_emitErrorInfo(bool isbad) const
