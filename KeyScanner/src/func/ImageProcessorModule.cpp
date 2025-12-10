@@ -297,6 +297,17 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 
 	processKeyRange();
 
+	for (const auto& item : leftKeyRange)
+	{
+		qDebug() << "leftitem:" << item;
+	}
+	qDebug() << "---------------------------:";
+
+	for (const auto& item : rightKeyRange)
+	{
+		qDebug() << "rightitem:" << item;
+	}
+
 	if (_canPlcGetMessage)
 	{
 		sendKeyRange();

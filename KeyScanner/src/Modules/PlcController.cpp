@@ -5,7 +5,7 @@
 void PlcController::build_plcController()
 {
 	rw::hoem::ModbusDeviceRtuCfg config;
-	config.device = "COM3";           // 使用 COM3 串口
+	config.device = "COM4";           // 使用 COM3 串口
 	config.baud = 115200;               // 波特率 9600
 	config.parity = 'N';              // 无校验
 	config.dataBit = 8;               // 8 数据位

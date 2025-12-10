@@ -44,8 +44,7 @@ void DetachCheckPlcController::listen()
 
 	try
 	{
-		auto isSuccess = plcControllerScheduler->readUInt32RegisterAsync(700,
-			rw::hoem::Endianness::LittleEndian,
+		auto isSuccess = plcControllerScheduler->readCoilAsync(188,
 			3, std::chrono::milliseconds(1000));
 
 		plcControllerScheduler->wait();
