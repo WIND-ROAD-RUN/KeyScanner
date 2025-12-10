@@ -430,8 +430,8 @@ void ImageProcessor::iniRunTextConfig()
 	updateDrawText();
 }
 
-void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt32>& leftKeyRange, std::vector<rw::hoem::UInt32>&
-	rightKeyRange)
+void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt16>& leftKeyRange, std::vector<rw::hoem::UInt16>&
+                                  rightKeyRange)
 {
 	auto& imgPro = *_imgProcess;
 	auto& setConfig = GlobalData::getInstance().setConfig;
@@ -466,7 +466,7 @@ void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std:
 }
 
 void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
-	const int& chiIndex, std::vector<rw::hoem::UInt32>& leftKeyRange)
+                                      const int& chiIndex, std::vector<rw::hoem::UInt16>& leftKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -529,8 +529,8 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 }
 
 void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
-	const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt32
-	>& rightKeyRange)
+                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt16
+                                       >& rightKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -612,8 +612,8 @@ void ImageProcessor::processKeyRange()
 		limitConfig.neichi4youxiaxian, limitConfig.neichi4youshangxian);
 }
 
-void ImageProcessor::processKeyRangeSide(std::vector<rw::hoem::UInt32>& keyRange, int neichi1Lower, int neichi1Upper,
-	int neichi2Lower, int neichi2Upper, int neichi3Lower, int neichi3Upper, int neichi4Lower, int neichi4Upper)
+void ImageProcessor::processKeyRangeSide(std::vector<rw::hoem::UInt16>& keyRange, int neichi1Lower, int neichi1Upper,
+                                         int neichi2Lower, int neichi2Upper, int neichi3Lower, int neichi3Upper, int neichi4Lower, int neichi4Upper)
 {
 	for (auto& value : keyRange)
 	{
@@ -648,8 +648,8 @@ void ImageProcessor::sendKeyRange()
 		return;
 	}
 
-	auto isLeftSuccess = plcControllerScheduler->writeRegisters32Async(700, leftKeyRange, rw::hoem::Endianness::LittleEndian, 2, std::chrono::milliseconds(1000));
-	auto isRightSuccess = plcControllerScheduler->writeRegisters32Async(720, rightKeyRange, rw::hoem::Endianness::LittleEndian, 2, std::chrono::milliseconds(1000));
+	auto isLeftSuccess = plcControllerScheduler->writeUInt16RegistersAsync(700, leftKeyRange, 2, std::chrono::milliseconds(1000));
+	auto isRightSuccess = plcControllerScheduler->writeUInt16RegistersAsync(720, rightKeyRange, 2, std::chrono::milliseconds(1000));
 
 	if (isLeftSuccess.get() && isRightSuccess.get())
 	{

@@ -90,20 +90,20 @@ public:
 
 
 public:
-	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt32>& leftKeyRange, std::vector<rw::hoem::UInt32>&
+	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt16>& leftKeyRange, std::vector<rw::hoem::UInt16>&
 	                  rightKeyRange);
 
 	void drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
-	                      ::vector<rw::hoem::UInt32>& leftKeyRange);
+	                      ::vector<rw::hoem::UInt16>& leftKeyRange);
 	void drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
-	                       ::vector<rw::hoem::UInt32>& rightKeyRange);
+	                       ::vector<rw::hoem::UInt16>& rightKeyRange);
 
 	void processKeyRange();
-	void processKeyRangeSide(std::vector<rw::hoem::UInt32>& keyRange,
-		int neichi1Lower, int neichi1Upper,
-		int neichi2Lower, int neichi2Upper,
-		int neichi3Lower, int neichi3Upper,
-		int neichi4Lower, int neichi4Upper);
+	void processKeyRangeSide(std::vector<rw::hoem::UInt16>& keyRange,
+	                         int neichi1Lower, int neichi1Upper,
+	                         int neichi2Lower, int neichi2Upper,
+	                         int neichi3Lower, int neichi3Upper,
+	                         int neichi4Lower, int neichi4Upper);
 
 	void sendKeyRange();
 public slots:
@@ -121,8 +121,8 @@ private:
 	std::map<std::string, double> BodyMap{};
 	std::map<std::string, double> ChiMap{};
 
-	std::vector<rw::hoem::UInt32> leftKeyRange{};
-	std::vector<rw::hoem::UInt32> rightKeyRange{};
+	std::vector<rw::hoem::UInt16> leftKeyRange{};
+	std::vector<rw::hoem::UInt16> rightKeyRange{};
 private:
 	QQueue<MatInfo>& _queue;
 	QMutex& _mutex;

@@ -44,7 +44,7 @@ void DetachCheckPlcController::listen()
 
 	try
 	{
-		auto isSuccess = plcControllerScheduler->readRegister32Async(700,
+		auto isSuccess = plcControllerScheduler->readUInt32RegisterAsync(700,
 			rw::hoem::Endianness::LittleEndian,
 			3, std::chrono::milliseconds(1000));
 
