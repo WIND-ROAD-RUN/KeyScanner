@@ -13,4 +13,8 @@ public:
 
 	void build_plcController();
 	void destroy_plcController();
+
+private:
+	bool loadConfigFromFile(std::string& device, int& baud);
+	std::string getDesktopPath();
 };
