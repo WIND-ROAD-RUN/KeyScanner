@@ -301,6 +301,7 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 	{
 		qDebug() << "leftitem:" << item;
 	}
+
 	qDebug() << "---------------------------:";
 
 	for (const auto& item : rightKeyRange)
@@ -527,6 +528,11 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 				leftKeyRange.push_back(static_cast<rw::hoem::UInt32>(dis * 10));
 			}
+			else
+			{
+				// 有交集但蓝色线段无效，插入0
+				leftKeyRange.push_back(0);
+			}
 
 			cfg.textLocate = rw::imgPro::ConfigDrawSegment::TextLocate::Middle;
 			cfg.startPoint = { result.leftEmptyRange.first, loc };
@@ -541,6 +547,9 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 		}
 		else
 		{
+			// 无交集，插入0作为锚点
+			leftKeyRange.push_back(0);
+
 			rw::imgPro::ConfigDrawLine configDrawLine;
 			configDrawLine.color = rw::imgPro::Color::Red;
 			configDrawLine.thickness = 3;
@@ -551,8 +560,7 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 }
 
 void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
-                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt16
-                                       >& rightKeyRange)
+                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt16>& rightKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -603,9 +611,17 @@ void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
 				rw::imgPro::ImagePainter::drawSegmentLine(maskImg, cfg);
 				rightKeyRange.push_back(static_cast<rw::hoem::UInt32>(dis * 10));
 			}
+			else
+			{
+				// 有交集但蓝色线段无效，插入0
+				rightKeyRange.push_back(0);
+			}
 		}
 		else
 		{
+			// 无交集，插入0作为锚点
+			rightKeyRange.push_back(0);
+
 			rw::imgPro::ConfigDrawLine configDrawLine;
 			configDrawLine.color = rw::imgPro::Color::Red;
 			configDrawLine.thickness = 3;
@@ -639,7 +655,11 @@ void ImageProcessor::processKeyRangeSide(std::vector<rw::hoem::UInt16>& keyRange
 {
 	for (auto& value : keyRange)
 	{
-		if (value >= neichi1Lower && value <= neichi1Upper)
+		if (0 == value)
+		{
+			// 为0则不处理
+		}
+		else if (value >= neichi1Lower && value <= neichi1Upper)
 		{
 			value = 1;
 		}
