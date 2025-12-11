@@ -51,11 +51,21 @@ void DetachCheckPlcController::listen()
 		if (isSuccess.get())
 		{
 			emit getSignal();
+			// 重置线圈状态为 false
+			auto writeResult = plcControllerScheduler->writeCoilAsync(188, false,
+				3, std::chrono::milliseconds(1000));
+			writeResult.get();
 		}
 	}
 	catch (const std::exception& e)
 	{
-		qWarning() << "PLC read failed:" << e.what();
+		qWarning() << "PLC operation failed:" << e.what();
+		auto plcController = GlobalThread::getInstance().plcController.plcController;
+		auto isReconnect = plcController->reconnect();
+		if (isReconnect)
+		{
+			qDebug() << "PLC重新连接成功";
+		}
 	}
 }
 

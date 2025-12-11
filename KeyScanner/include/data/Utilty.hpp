@@ -34,5 +34,9 @@ struct Utility
 {
 	static QString cameraIp1;
 	static QString zmotionIp;
+
+	// 控制台和 Qt 编码初始化
+	static bool initializeConsoleEncoding();
+	static void setupQtMessageHandler();
 };
 
