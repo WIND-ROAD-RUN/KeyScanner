@@ -48,7 +48,7 @@ void DetachCheckPlcController::listen()
 			3, std::chrono::milliseconds(1000));
 
 		plcControllerScheduler->wait();
-		if (isSuccess.get())
+		if (isSuccess.get().first)
 		{
 			emit getSignal();
 			// 重置线圈状态为 false
@@ -78,7 +78,7 @@ void DetachCheckPlcController::checkCoil()
 		try
 		{
 			auto isSuccess = plcControllerScheduler->readCoilAsync(188, isChuFa);
-			if (isChuFa && isSuccess.get())
+			if (isChuFa && isSuccess.get().first)
 			{
 				std::cout << "线圈触发!" << std::endl;
 
