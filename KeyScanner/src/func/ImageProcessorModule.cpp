@@ -277,9 +277,9 @@ void ImageProcessor::run_debug(MatInfo& frame)
 
 	emit imageReady(QPixmap::fromImage(maskImg));
 
-	//rw::rqw::ImageInfo imageInfo(maskImg);
+	/*rw::rqw::ImageInfo imageInfo(rw::rqw::cvMatToQImage(frame.image));
 
-	//save_image(imageInfo, maskImg);
+	save_image(imageInfo, maskImg);*/
 }
 
 void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
@@ -317,7 +317,7 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 
 	emit imageNGReady(QPixmap::fromImage(maskImg), frame.index, defectResult.isBad);
 
-	rw::rqw::ImageInfo imageInfo(maskImg);
+	rw::rqw::ImageInfo imageInfo(rw::rqw::cvMatToQImage(frame.image));
 
 	save_image(imageInfo, maskImg);
 }
@@ -354,9 +354,8 @@ void ImageProcessor::save_image_work(rw::rqw::ImageInfo& imageInfo, const QImage
 	auto& config = GlobalData::getInstance().keyScannerConfig;
 	if (config.isSaveImg)
 	{
-		rw::rqw::ImageInfo Ok(image);
-		Ok.classify = "OK";
-		imageSaveEngine->pushImage(Ok);
+		imageInfo.classify = "OK";
+		imageSaveEngine->pushImage(imageInfo);
 	}
 }
 
