@@ -576,8 +576,8 @@ void KeyScanner::rbtn_removeFunc_checked(bool checked)
 		globalData.runningState = RunningState::OpenRemoveFunc;
 		if (globalThread.camera1)
 		{
-			globalThread.camera1->setTriggerState(true);
-			globalThread.camera1->setFrameRate(50);
+			globalThread.camera1->setTriggerState(false);
+			globalThread.camera1->setFrameRate(3);
 		}
 		ui->rbtn_debug->setChecked(false);
 		ui->ckb_shibiekuang->setVisible(false);

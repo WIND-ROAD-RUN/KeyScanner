@@ -47,7 +47,7 @@ void DetachCheckPlcController::listen()
 		auto isSuccess = plcControllerScheduler->readCoilAsync(188,
 			3, std::chrono::milliseconds(1000));
 
-		plcControllerScheduler->wait();
+		plcControllerScheduler->waitAll();
 		if (isSuccess.get().first)
 		{
 			emit getSignal();
