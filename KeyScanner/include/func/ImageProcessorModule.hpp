@@ -106,6 +106,8 @@ public:
 	                         int neichi4Lower, int neichi4Upper);
 
 	void sendKeyRange();
+
+	void resetCoil();
 public slots:
 	void updateDrawRec();
 	void updateDrawText();

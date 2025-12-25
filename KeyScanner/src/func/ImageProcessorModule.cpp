@@ -312,6 +312,7 @@ void ImageProcessor::run_OpenRemoveFunc(MatInfo& frame)
 	if (_canPlcGetMessage)
 	{
 		sendKeyRange();
+		resetCoil();
 		_canPlcGetMessage = false;
 	}
 
@@ -453,7 +454,7 @@ void ImageProcessor::iniRunTextConfig()
 }
 
 void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt16>& leftKeyRange, std::vector<rw::hoem::UInt16>&
-                                  rightKeyRange)
+	rightKeyRange)
 {
 	auto& imgPro = *_imgProcess;
 	auto& setConfig = GlobalData::getInstance().setConfig;
@@ -488,7 +489,7 @@ void ImageProcessor::drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std:
 }
 
 void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex,
-                                      const int& chiIndex, std::vector<rw::hoem::UInt16>& leftKeyRange)
+	const int& chiIndex, std::vector<rw::hoem::UInt16>& leftKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -559,7 +560,7 @@ void ImageProcessor::drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, 
 }
 
 void ImageProcessor::drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage,
-                                       const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt16>& rightKeyRange)
+	const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std::vector<rw::hoem::UInt16>& rightKeyRange)
 {
 	auto& setConfig = GlobalData::getInstance().setConfig;
 	double pixToWorld = setConfig.xiangsudangliang;
@@ -650,7 +651,7 @@ void ImageProcessor::processKeyRange()
 }
 
 void ImageProcessor::processKeyRangeSide(std::vector<rw::hoem::UInt16>& keyRange, int neichi1Lower, int neichi1Upper,
-                                         int neichi2Lower, int neichi2Upper, int neichi3Lower, int neichi3Upper, int neichi4Lower, int neichi4Upper)
+	int neichi2Lower, int neichi2Upper, int neichi3Lower, int neichi3Upper, int neichi4Lower, int neichi4Upper)
 {
 	for (auto& value : keyRange)
 	{
@@ -689,8 +690,8 @@ void ImageProcessor::sendKeyRange()
 		return;
 	}
 
-	auto isLeftSuccess = plcControllerScheduler->writeUInt16RegistersAsync(700, leftKeyRange, 2, std::chrono::milliseconds(1000));
-	auto isRightSuccess = plcControllerScheduler->writeUInt16RegistersAsync(720, rightKeyRange, 2, std::chrono::milliseconds(1000));
+	auto isLeftSuccess = plcControllerScheduler->writeUInt16RegistersAsync(700, leftKeyRange, 2, std::chrono::milliseconds(500));
+	auto isRightSuccess = plcControllerScheduler->writeUInt16RegistersAsync(720, rightKeyRange, 2, std::chrono::milliseconds(500));
 
 	if (isLeftSuccess.get() && isRightSuccess.get())
 	{
@@ -699,6 +700,37 @@ void ImageProcessor::sendKeyRange()
 	else
 	{
 		qDebug() << "PLC写入左右键槽失败";
+	}
+}
+
+void ImageProcessor::resetCoil()
+{
+	auto plcControllerScheduler = GlobalThread::getInstance().plcController.plcControllerScheduler;
+	if (!plcControllerScheduler)
+	{
+		return;
+	}
+
+	try
+	{
+		// 重置线圈状态为 false
+		auto writeResult = plcControllerScheduler->writeCoilAsync(188, false,
+			2, std::chrono::milliseconds(500));
+		
+		if (writeResult.get())
+		{
+			qDebug() << "PLC线圈复位成功";
+		}
+	}
+	catch (const std::exception& e)
+	{
+		qWarning() << "PLC operation failed:" << e.what();
+		auto plcController = GlobalThread::getInstance().plcController.plcController;
+		auto isReconnect = plcController->reconnect();
+		if (isReconnect)
+		{
+			qDebug() << "PLC重新连接成功";
+		}
 	}
 }
 
@@ -806,7 +838,7 @@ void ImageProcessingModule::BuildModule()
 		connect(this, &ImageProcessingModule::shibiekuangChanged, processor, &ImageProcessor::updateDrawRec, Qt::QueuedConnection);
 		connect(this, &ImageProcessingModule::wenziChanged, processor, &ImageProcessor::updateDrawText, Qt::QueuedConnection);
 		connect(this, &ImageProcessingModule::paramMapsChanged, processor, &ImageProcessor::updateParamMapsFromGlobalStruct, Qt::QueuedConnection);
-		connect(this, &ImageProcessingModule::getPlcSignal, processor, &ImageProcessor::getPlcSignal, Qt::QueuedConnection);
+		connect(this, &ImageProcessingModule::getPlcSignal, processor, &ImageProcessor::getPlcSignal);
 
 		_processors.push_back(processor);
 		processor->start();

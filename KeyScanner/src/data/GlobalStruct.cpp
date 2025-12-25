@@ -44,9 +44,9 @@ bool GlobalThread::buildCamera1()
 		{
 			camera1 = std::make_unique<rw::rqw::CameraPassiveThread>(this);
 			camera1->initCamera(cameraMetaData1, rw::rqw::CameraObjectTrigger::Hardware);
-			camera1->setTriggerState(true);
+			camera1->setTriggerState(false);
 			camera1->cameraIndex = 1;
-			camera1->setFrameRate(50);
+			camera1->setFrameRate(3);
 			camera1->setHeartbeatTime(5000);
 			camera1->setExposureTime(static_cast<size_t>(globalDataSetConfig.baoguang));
 			camera1->setGain(static_cast<size_t>(globalDataSetConfig.zengyi));
