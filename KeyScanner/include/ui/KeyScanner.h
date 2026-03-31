@@ -20,9 +20,10 @@ class HTuple;
 class HObject;
 }
 
-// HalconDisplay class forward declaration
+// HalconDisplay and ProcessParam forward declaration
 #ifdef BUILD_WITH_HALCON
 #include "HalconDisplay.hpp"
+#include "ProcessParam.hpp"
 #endif
 
 QT_BEGIN_NAMESPACE
@@ -159,13 +160,8 @@ private:
 		double c2 = 0.0;
 	};
 	
-	struct ProcessParam {
-		HalconCpp::HObject* _paintCreateRoiObj = nullptr;
-		HalconCpp::HObject* _paintShieldRoiObj = nullptr;
-		HalconCpp::HObject* _findCreateXldObj = nullptr;
-	};
-	
-	
+	// 图像处理参数（使用新的 ProcessParam 类）
+	std::unique_ptr<rw::rqw::ProcessParam> _processParam;
 
 private:
 	

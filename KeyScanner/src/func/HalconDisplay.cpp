@@ -5,6 +5,7 @@
 #include <QDebug>
 #include <QString>
 #include <halconcpp/HalconCpp.h>
+#include <opencv2/opencv.hpp>
 
 namespace rw {
 namespace rqw {
@@ -212,6 +213,108 @@ void HalconDisplay::setDisplayPart(int row1, int col1, int row2, int col2)
 void HalconDisplay::resetDisplayPart(int imageWidth, int imageHeight)
 {
     setDisplayPart(0, 0, imageHeight - 1, imageWidth - 1);
+}
+
+HalconCpp::HObject HalconDisplay::matToHObject(const cv::Mat& mat)
+{
+    using namespace HalconCpp;
+    
+    if (mat.empty()) {
+        throw std::runtime_error("matToHObject: 输入 Mat 为空");
+    }
+
+    HObject hoImage;
+    
+    // 获取 Mat 的尺寸
+    int width = mat.cols;
+    int height = mat.rows;
+    
+    // 根据 Mat 类型进行转换
+    switch (mat.type()) {
+        case CV_8UC1: {
+            // 8位灰度图
+            GenImage1(&hoImage, "byte", width, height, (Hlong)mat.data);
+            break;
+        }
+        case CV_8UC3: {
+            // 8位彩色图 (BGR -> RGB)
+            // Halcon 使用 RGB 格式，OpenCV 使用 BGR 格式，需要转换
+            cv::Mat matRGB;
+            cv::cvtColor(mat, matRGB, cv::COLOR_BGR2RGB);
+            // 使用 GenImage3 分别传入 R, G, B 通道
+            std::vector<cv::Mat> channels;
+            cv::split(matRGB, channels);
+            GenImage3(&hoImage, "byte", width, height, 
+                     (Hlong)channels[0].data,  // R
+                     (Hlong)channels[1].data,  // G
+                     (Hlong)channels[2].data); // B
+            break;
+        }
+        case CV_16UC1: {
+            // 16位灰度图
+            GenImage1(&hoImage, "uint2", width, height, (Hlong)mat.data);
+            break;
+        }
+        case CV_32FC1: {
+            // 32位浮点灰度图
+            GenImage1(&hoImage, "real", width, height, (Hlong)mat.data);
+            break;
+        }
+        default: {
+            // 不支持的格式，尝试转换为 8UC3 后处理
+            qWarning() << "matToHObject: 不支持的 Mat 类型:" << mat.type() << "，尝试转换为 8UC3";
+            cv::Mat matConverted;
+            if (mat.channels() == 1) {
+                cv::cvtColor(mat, matConverted, cv::COLOR_GRAY2RGB);
+            } else if (mat.channels() == 3) {
+                cv::cvtColor(mat, matConverted, cv::COLOR_BGR2RGB);
+            } else if (mat.channels() == 4) {
+                cv::cvtColor(mat, matConverted, cv::COLOR_BGRA2RGB);
+            } else {
+                throw std::runtime_error("matToHObject: 不支持的通道数");
+            }
+            // 使用 GenImage3 分别传入 R, G, B 通道
+            std::vector<cv::Mat> channels;
+            cv::split(matConverted, channels);
+            GenImage3(&hoImage, "byte", width, height, 
+                     (Hlong)channels[0].data,  // R
+                     (Hlong)channels[1].data,  // G
+                     (Hlong)channels[2].data); // B
+            break;
+        }
+    }
+    
+    return hoImage;
+}
+
+bool HalconDisplay::displayMat(const cv::Mat& mat, bool fitToWindow)
+{
+    if (!isValid()) {
+        qWarning() << "HalconDisplay: 窗口未初始化，无法显示图片";
+        return false;
+    }
+
+    try {
+        using namespace HalconCpp;
+        
+        // 转换 Mat 为 HObject
+        HObject hoImage = matToHObject(mat);
+        
+        // 显示图片
+        return displayImage(hoImage, fitToWindow);
+    }
+    catch (const std::exception& e) {
+        qWarning() << "HalconDisplay Mat 显示错误:" << e.what();
+        return false;
+    }
+    catch (const HalconCpp::HException& e) {
+        qWarning() << "HalconDisplay Mat 显示错误:" << e.ErrorMessage().Text();
+        return false;
+    }
+    catch (...) {
+        qWarning() << "HalconDisplay: 显示 Mat 时发生未知错误";
+        return false;
+    }
 }
 
 } // namespace rqw

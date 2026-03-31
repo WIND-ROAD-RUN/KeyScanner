@@ -4,6 +4,7 @@
 
 #include <QWidget>
 #include <QString>
+#include <opencv2/opencv.hpp>
 
 // Halcon forward declarations
 namespace HalconCpp {
@@ -117,6 +118,22 @@ public:
      * @return 最后显示的图片指针（可能为 nullptr）
      */
     HalconCpp::HObject* getLastImage() const { return _lastImage; }
+
+    /**
+     * @brief 将 OpenCV Mat 转换为 Halcon HObject
+     * @param mat OpenCV Mat 图像
+     * @return Halcon HObject 图像
+     * @note 支持 CV_8UC1(灰度), CV_8UC3(BGR), CV_16UC1(16位灰度) 格式
+     */
+    static HalconCpp::HObject matToHObject(const cv::Mat& mat);
+
+    /**
+     * @brief 显示 OpenCV Mat 图片
+     * @param mat OpenCV Mat 图像
+     * @param fitToWindow 是否自适应窗口大小
+     * @return 是否显示成功
+     */
+    bool displayMat(const cv::Mat& mat, bool fitToWindow = true);
 
 private:
     QWidget* _parentWidget = nullptr;           ///< 父控件
