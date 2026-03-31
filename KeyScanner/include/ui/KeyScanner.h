@@ -141,9 +141,14 @@ public:
 	// HalconDisplay 封装类，用于图片显示
 	std::unique_ptr<rw::rqw::HalconDisplay> _halconDisplay;
 
+protected:
+	// 重写 showEvent，在窗体第一次显示时初始化 Halcon
+	void showEvent(QShowEvent* event) override;
+
 private:
 	// 初始化 Halcon 显示
 	void initHalconDisplay();
+	bool _halconDisplayInitialized = false;  // 标记是否已初始化
 
 private:
 	// Halcon related members (原有的，保留备用)
@@ -160,28 +165,10 @@ private:
 		HalconCpp::HObject* _findCreateXldObj = nullptr;
 	};
 	
-	QWidget* _halconHost = nullptr;
-	HalconCpp::HTuple* _halconWindowHandle = nullptr;
-	HalconCpp::HObject* _halconLastImage = nullptr;
-	HalconCpp::HObject* _centerPointXldObj = nullptr;
-	ProcessParam _processParam;
-	HalconViewPart _viewPart;
-	HalconViewPart _panStartPart;
-	bool _viewPartValid = false;
-	int _viewImgW = 0;
-	int _viewImgH = 0;
-	bool _isPanning = false;
-	QSize _labelImgDisplaySize;
+	
 
 private:
-	// Halcon related methods (原有的，保留备用)
-	bool ensureHalconWindow();
-	void closeHalconWindow();
-	void redrawHalconView(bool clearWindow = false);
-	void zoomHalconViewAt(const QPoint& hostPos, int steps);
-	void panHalconViewFromDrag(const QPoint& dragDelta);
-	bool ensureHalconViewPart();
-	void resetHalconViewPartToFullImage();
+	
 #endif
 };
 
