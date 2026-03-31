@@ -14,6 +14,17 @@
 #include "PlcController.hpp"
 #include <QSpinBox>
 
+// Halcon forward declarations
+namespace HalconCpp {
+class HTuple;
+class HObject;
+}
+
+// HalconDisplay class forward declaration
+#ifdef BUILD_WITH_HALCON
+#include "HalconDisplay.hpp"
+#endif
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class KeyScannerClass; };
 QT_END_NAMESPACE
@@ -114,6 +125,7 @@ public:
 	template<class TypeCanToAssembly>
 	static void checkFileExistAndFormat(const QString& path, const rw::oso::StorageContext& context);
 	static bool EnsureDirectoryExists(const QString& dirPath);
+
 private:
 	rw::rqw::ClickableLabel* clickableTitle = nullptr;
 public:
@@ -123,6 +135,54 @@ public:
 private:
 	Ui::KeyScannerClass* ui;
 	int minimizeCount{ 3 };
+
+#ifdef BUILD_WITH_HALCON
+public:
+	// HalconDisplay 封装类，用于图片显示
+	std::unique_ptr<rw::rqw::HalconDisplay> _halconDisplay;
+
+private:
+	// 初始化 Halcon 显示
+	void initHalconDisplay();
+
+private:
+	// Halcon related members (原有的，保留备用)
+	struct HalconViewPart {
+		double r1 = 0.0;
+		double c1 = 0.0;
+		double r2 = 0.0;
+		double c2 = 0.0;
+	};
+	
+	struct ProcessParam {
+		HalconCpp::HObject* _paintCreateRoiObj = nullptr;
+		HalconCpp::HObject* _paintShieldRoiObj = nullptr;
+		HalconCpp::HObject* _findCreateXldObj = nullptr;
+	};
+	
+	QWidget* _halconHost = nullptr;
+	HalconCpp::HTuple* _halconWindowHandle = nullptr;
+	HalconCpp::HObject* _halconLastImage = nullptr;
+	HalconCpp::HObject* _centerPointXldObj = nullptr;
+	ProcessParam _processParam;
+	HalconViewPart _viewPart;
+	HalconViewPart _panStartPart;
+	bool _viewPartValid = false;
+	int _viewImgW = 0;
+	int _viewImgH = 0;
+	bool _isPanning = false;
+	QSize _labelImgDisplaySize;
+
+private:
+	// Halcon related methods (原有的，保留备用)
+	bool ensureHalconWindow();
+	void closeHalconWindow();
+	void redrawHalconView(bool clearWindow = false);
+	void zoomHalconViewAt(const QPoint& hostPos, int steps);
+	void panHalconViewFromDrag(const QPoint& dragDelta);
+	bool ensureHalconViewPart();
+	void resetHalconViewPartToFullImage();
+#endif
 };
 
 template <class TypeCanToAssembly>
@@ -150,4 +210,3 @@ void KeyScanner::checkFileExistAndFormat(const QString& path, const rw::oso::Sto
 		context.saveSafe(TypeCanToAssembly(), path.toStdString());
 	}
 }
-

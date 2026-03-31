@@ -12,6 +12,23 @@ find_package(Qt6 REQUIRED COMPONENTS Core Widgets Concurrent)
 
 find_package(libmodbus CONFIG REQUIRED)
 
+# Halcon support - directly use HALCON_ROOT
+if(BUILD_WITH_HALCON AND HALCON_ROOT)
+    add_compile_definitions(BUILD_WITH_HALCON)
+    set(Halcon_include ${HALCON_ROOT}/include)
+    set(Halcon_libs 
+        ${HALCON_ROOT}/lib/x64-win64/halcon.lib
+        ${HALCON_ROOT}/lib/x64-win64/halconc.lib
+        ${HALCON_ROOT}/lib/x64-win64/halconcpp.lib
+        ${HALCON_ROOT}/lib/x64-win64/halconcppxl.lib
+        ${HALCON_ROOT}/lib/x64-win64/halconcxl.lib
+        ${HALCON_ROOT}/lib/x64-win64/halconxl.lib
+        ${HALCON_ROOT}/lib/x64-win64/hdevenginecpp.lib
+        ${HALCON_ROOT}/lib/x64-win64/hdevenginecppxl.lib
+        ${HALCON_ROOT}/lib/x64-win64/libiomp5md.lib
+    )
+endif()
+
 file(GLOB UI_FILES "${CMAKE_CURRENT_SOURCE_DIR}/ui/*.ui")
 qt_wrap_ui(GENERATED_UI_HEADERS ${UI_FILES})
 
@@ -61,6 +78,10 @@ target_include_directories(${PROJECT_NAME}
 	PRIVATE ${CMAKE_CURRENT_BINARY_DIR}
 )
 
+if(BUILD_WITH_HALCON AND HALCON_ROOT)
+    target_include_directories(${PROJECT_NAME} PRIVATE ${Halcon_include})
+endif()
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets Qt6::Concurrent)
 target_link_libraries(${PROJECT_NAME} 
 	PRIVATE ${OpenCV_LIBS}
@@ -75,6 +96,10 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE modbus
 )
 
+if(BUILD_WITH_HALCON AND HALCON_ROOT)
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${Halcon_libs})
+endif()
+
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${QT_PATH}/bin/windeployqt.exe --no-compiler-runtime --no-opengl-sw $<TARGET_FILE:${PROJECT_NAME}>
     COMMENT "Running windeployqt to package Qt dependencies"
@@ -85,10 +110,3 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     ${ZMotionRutime_dlls}
     $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
-
-
-
-
-
-
-
