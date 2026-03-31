@@ -349,8 +349,6 @@ void KeyScanner::build_ImageProcessingModule()
 
 	QObject::connect(globalThread.modelCamera1.get(), &ImageProcessingModule::imageReady, this, &KeyScanner::onCamera1Display);
 	QObject::connect(globalThread.modelCamera1.get(), &ImageProcessingModule::imageNGReady, this, &KeyScanner::onCameraNGDisplay);
-	QObject::connect(this, &KeyScanner::shibiekuangChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::shibiekuangChanged);
-	QObject::connect(this, &KeyScanner::wenziChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::wenziChanged);
 	QObject::connect(_dlgProductSet, &DlgProductSet::paramsChanged, globalThread.modelCamera1.get(), &ImageProcessingModule::paramMapsChanged);
 	QObject::connect(&globalThread, &GlobalThread::emit_getSignal, globalThread.modelCamera1.get(), &ImageProcessingModule::getPlcSignal);
 }
@@ -600,7 +598,7 @@ void KeyScanner::ckb_shibiekuang_checked(bool checked)
 	auto& globalData = GlobalData::getInstance();
 	globalData.keyScannerConfig.isshibiekuang = ui->ckb_shibiekuang->isChecked();
 
-	emit shibiekuangChanged();
+	emit
 }
 
 void KeyScanner::ckb_wenzi_checked(bool checked)
@@ -608,7 +606,7 @@ void KeyScanner::ckb_wenzi_checked(bool checked)
 	auto& globalData = GlobalData::getInstance();
 	globalData.keyScannerConfig.iswenzi = ui->ckb_wenzi->isChecked();
 
-	emit wenziChanged();
+	emit
 }
 
 void KeyScanner::pbtn_resetProduct_clicked()

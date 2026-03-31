@@ -1,7 +1,5 @@
 #pragma once
 
-#include"ime_ModelEngineFactory.h"
-
 #include <QObject>
 #include <QQueue>
 #include <QMutex>
@@ -10,7 +8,6 @@
 #include <vector>
 #include <QThread>
 #include <QPixmap>
-#include <imgPro_ImageProcess.hpp>
 
 #include "hoem_utilty.hpp"
 #include "rqw_CameraObjectCore.hpp"
@@ -29,12 +26,6 @@ struct KeyLinePixelCountResult {
 	std::pair<int, int> rightBladeRange{0,0};
 	std::pair<int, int> middleTeethRange{0,0};
 };
-
-KeyLinePixelCountResult countKeyLinePixels(
-	const rw::DetectionRectangleInfo& blade,
-	const rw::DetectionRectangleInfo& teeth,
-	int lineY,
-	const cv::Mat & mat);
 
 // 图片信息
 struct MatInfo {
@@ -74,30 +65,10 @@ signals:
 	void imageReady(QPixmap image);
 	void imageNGReady(QPixmap image, size_t index, bool isbad);
 
-private:
-	std::unique_ptr<rw::imgPro::ImageProcess> _imgProcess;
 public:
-	// 构建模型引擎
-	void buildSEGModelEngine(const QString& enginePath);
-
-	void iniIndexGetContext();
-	void iniEliminationInfoFunc();
-	void iniEliminationInfoGetContext();
-	void iniDefectResultInfoFunc();
-	void iniDefectResultGetContext();
-	void iniDefectDrawConfig();
-	void iniRunTextConfig();
 
 
 public:
-	void drawKeyRange(QImage& maskImg, const cv::Mat& rowImage, std::vector<rw::hoem::UInt16>& leftKeyRange, std::vector<rw::hoem::UInt16>&
-	                  rightKeyRange);
-
-	void drawLeftKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
-	                      ::vector<rw::hoem::UInt16>& leftKeyRange);
-	void drawRightKeyRange(QImage& maskImg, const cv::Mat& rowImage, const rw::imgPro::ProcessResult& processResult, const int& bodyIndex, const int& chiIndex, std
-	                       ::vector<rw::hoem::UInt16>& rightKeyRange);
-
 	void processKeyRange();
 	void processKeyRangeSide(std::vector<rw::hoem::UInt16>& keyRange,
 	                         int neichi1Lower, int neichi1Upper,
@@ -109,10 +80,7 @@ public:
 
 	void resetCoil();
 public slots:
-	void updateDrawRec();
-	void updateDrawText();
 	void updateParamMapsFromGlobalStruct();
-
 	// 收到PLC信号
 	void getPlcSignal();
 public:
@@ -155,8 +123,6 @@ public slots:
 signals:
 	void imageReady(QPixmap image);
 	void imageNGReady(QPixmap image, size_t index, bool isbad);
-	void shibiekuangChanged();
-	void wenziChanged();
 	void paramMapsChanged();
 
 	// 收到PLC信号

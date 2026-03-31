@@ -108,8 +108,6 @@ private slots:
 	void pbtn_resetProduct_clicked();
 
 signals:
-	void shibiekuangChanged();
-	void wenziChanged();
 
 public:
 	static bool check();

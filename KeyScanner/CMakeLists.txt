@@ -71,9 +71,6 @@ target_link_libraries(${PROJECT_NAME}
 	PRIVATE oso
 	PRIVATE rqwhoec
 	PRIVATE hoem
-	PRIVATE ime
-	PRIVATE rqwime
-	PRIVATE imgPro
 	PRIVATE rqwscc
 	PRIVATE modbus
 )
@@ -85,16 +82,9 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${TensorRT_dlls} ${TensorRT_exes} ${OnnxRuntime_dlls}
-    $<TARGET_FILE_DIR:${PROJECT_NAME}>
-)
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${ZMotionRutime_dlls}
     $<TARGET_FILE_DIR:${PROJECT_NAME}>
 )
-
 
 
 
